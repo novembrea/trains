@@ -50,6 +50,9 @@ function placeVertex({ name, radius = stationRadius }: { name: string; radius?: 
     if (shouldSnapToGrid) {
       x -= x % vertexExclusionRadius
       y -= y % vertexExclusionRadius
+    } else {
+      x -= x % 50
+      y -= y % 50
     }
 
     if (x < stationRadius || y < stationRadius || x > xPlacementBound || y > yPlacementBound) continue
@@ -59,8 +62,8 @@ function placeVertex({ name, radius = stationRadius }: { name: string; radius?: 
     }
 
     const station = new Konva.Circle({
-      x: +x.toFixed(0),
-      y: +y.toFixed(0),
+      x,
+      y,
       radius: radius / 2,
       fill: randColor(),
       stroke: 'black',
@@ -127,6 +130,7 @@ function drawEdges(rr: RailRoadGraph, graphLayer: Layer) {
       const { name, weight } = vertex
       const [xStart, yStart] = [stations[station].station.x(), stations[station].station.y()]
       const [xEnd, yEnd] = [stations[name].station.x(), stations[name].station.y()]
+
       const edge = new Konva.Path({
         data: `M'${xStart} ${yStart} L ${xEnd} ${yEnd}`,
         id: `${station}-${name}`,
@@ -176,6 +180,7 @@ function render(rr: RailRoadGraph): void {
   names.forEach(computeDistances)
   names.forEach(name => addEdges(name, rr))
 
+  console.log(rr.adjList)
   if (!rr.isDisconnected()) {
     graphBuildAttempts++
     return render(new RailRoadGraph(names))
