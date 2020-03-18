@@ -3,26 +3,30 @@ import { Layer } from 'konva/types/Layer'
 import { Stage } from 'konva/types/Stage'
 
 import {
+  abortGraphBuildAttempts,
   abortPlacementAttempts,
   canvasWidth,
   cavnasHeight,
-  distances,
   names,
   shouldSnapToGrid,
   stationRadius,
-  stations,
   vertexExclusionRadius,
   xPlacementBound,
   yPlacementBound,
 } from './constants'
 import RailRoadGraph from './railroad'
+import { Distance, Stations } from './types'
 import { canFitStation, makeVertex, pointDistance, randBetween, randColor } from './utils'
 
 interface VertexProps {
-  // layer: Layer
   radius?: number
   name: string
 }
+
+let stage: Stage
+let stations: Stations
+let distances: Distance
+let graphBuildAttempts = 0
 
 function placeVertex({ name, radius = stationRadius }: VertexProps) {
   let placed = false
@@ -48,8 +52,7 @@ function placeVertex({ name, radius = stationRadius }: VertexProps) {
     }
 
     if (x < stationRadius || y < stationRadius || x > xPlacementBound || y > yPlacementBound) continue
-
-    if (!canFitStation(x, y)) {
+    if (!canFitStation(x, y, stations)) {
       attempts++
       continue
     }
@@ -79,49 +82,25 @@ function computeDistances(name: string, rr: RailRoadGraph) {
     const distance = +pointDistance(target.x(), value.x(), target.y(), value.y()).toFixed(0)
     distances[name].push({ station: key, distance })
   }
-  distances[name] = distances[name].sort((a, b) => a.distance - b.distance).slice(0, randBetween(2, 3))
+  distances[name] = distances[name].sort((a, b) => a.distance - b.distance).slice(0, randBetween(1, 3))
   distances[name].forEach(entry => {
     const truncatedDistance = +(entry.distance / 10).toFixed(0)
     rr.addEdge(makeVertex(name, truncatedDistance, 'station'), makeVertex(entry.station, truncatedDistance, 'station'))
   })
 }
 
-function render(rr: RailRoadGraph) {
-  let stage: Stage
-
-  stage = new Konva.Stage({
-    container: 'main',
-    width: canvasWidth,
-    height: cavnasHeight,
-    scale: {
-      x: 1,
-      y: 1,
-    },
-  })
-
-  const graphLayer: Layer = new Konva.Layer()
-
-  names.forEach(name => placeVertex({ name }))
-  names.forEach(name => computeDistances(name, rr))
-
-  drawEdges(rr, graphLayer)
-  drawStations(graphLayer)
-  stage.add(graphLayer)
-  stage.draw()
-}
-
 function drawStations(graphLayer: Layer) {
   Object.keys(stations).forEach(k => {
     const { station, name } = stations[k]
     const text = new Konva.Text({
-      x: station.x() - station.radius(),
+      x: station.x() - station.radius() + 15,
       y: station.y() - station.radius() * 2,
       text: name,
       fontSize: 12,
       fontFamily: 'Roboto',
     })
     const textBg = new Konva.Rect({
-      x: station.x() - 5 - station.radius(),
+      x: station.x() - 5 - station.radius() + 15,
       y: station.y() - station.radius() * 2 - 2,
       width: text.width() + 10,
       height: 14,
@@ -164,6 +143,38 @@ function drawEdges(rr: RailRoadGraph, graphLayer: Layer) {
       graphLayer.add(edge, circle, marker)
     })
   })
+}
+
+function render(rr: RailRoadGraph): void {
+  if (graphBuildAttempts === abortGraphBuildAttempts) {
+    throw Error("can't build graph")
+  }
+  stations = {}
+  distances = {}
+  stage = new Konva.Stage({
+    container: 'main',
+    width: canvasWidth,
+    height: cavnasHeight,
+    scale: {
+      x: 1,
+      y: 1,
+    },
+  })
+
+  const graphLayer: Layer = new Konva.Layer()
+  names.forEach(name => placeVertex({ name }))
+  names.forEach(name => computeDistances(name, rr))
+
+  drawEdges(rr, graphLayer)
+  drawStations(graphLayer)
+
+  if (!rr.isDisconnected()) {
+    graphBuildAttempts++
+    return render(new RailRoadGraph(names))
+  }
+  stage.add(graphLayer)
+  stage.draw()
+  graphBuildAttempts = 0
 }
 
 export default render

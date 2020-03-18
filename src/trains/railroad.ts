@@ -8,7 +8,6 @@ class RailRoadGraph {
   constructor(vertices: string[]) {
     this.vertices = vertices
     this.adjList = new Map()
-
     this.init()
   }
 
@@ -31,6 +30,17 @@ class RailRoadGraph {
     if (bList.find(v => v.name === a.name) === undefined) {
       bList.push(a)
     }
+  }
+
+  isDisconnected(): boolean {
+    const visited: { [key: string]: boolean } = {}
+    const visit = (vertex: Vertex): void => {
+      if (visited[vertex.name]) return
+      visited[vertex.name] = true
+      return this.adjList.get(vertex.name)?.forEach(v => visit(v))
+    }
+    visit(this.adjList.get(this.vertices[0])![0])
+    return Object.keys(visited).length === this.vertices.length
   }
 
   print() {

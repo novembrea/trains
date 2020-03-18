@@ -1,3 +1,6 @@
+import { Circle } from 'konva/types/shapes/Circle'
+import { Path } from 'konva/types/shapes/Path'
+
 export type VertexType = 'station' | 'semaphore'
 
 export type Semaphore = {
@@ -15,3 +18,6 @@ export type Pair = {
   x: number
   y: number
 }
+
+export type Stations = { [key: string]: { name: string; edges: Path[]; station: Circle } }
+export type Distance = { [key: string]: { station: string; distance: number }[] }
