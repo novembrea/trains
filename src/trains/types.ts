@@ -12,6 +12,6 @@ export type Vertex = {
 }
 
 export type Pair = {
-  startX: number
-  startY: number
+  x: number
+  y: number
 }
