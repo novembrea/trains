@@ -22,6 +22,7 @@ export const yPlacementBound = cavnasHeight - stationRadius
 
 // export const coordinates: { [key: string]: Pair } = {}
 export const stations: { [key: string]: { name: string; edges: Path[]; station: Circle } } = {}
+export const distances: { [key: string]: { station: string; distance: number }[] } = {}
 
 // Vertices will be snapped using modulo of vertexExclusionRadius applied to x and y coordinates.
 // Will produce a more grid-like layout.
