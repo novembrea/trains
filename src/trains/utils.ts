@@ -13,7 +13,8 @@ export const randBetween = (min: number, max: number) => Math.random() * max + m
 export const randElement = (target: string[]) => target[Math.floor(Math.random() * target.length)]
 export const anyButGiven = (given: string[], target: string[]) => randElement(target.filter(n => !given.includes(n)))
 export const randColor = () => '#' + (((1 << 24) * Math.random()) | 0).toString(16)
-export const pointDistance = (x1: number, x2: number, y1: number, y2: number) => Math.hypot(x2 - x1, y2 - y1)
+export const pointDistance = (x1: number, x2: number, y1: number, y2: number) =>
+  +Math.hypot(x2 - x1, y2 - y1).toFixed(0)
 
 // Checks whether provided pooint at given x/y can accomodate station considering constant value of exclusion radius.
 export const canFitStation = (x: number, y: number, stations: Stations): boolean => {

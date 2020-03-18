@@ -19,8 +19,8 @@ export const xPlacementBound = canvasWidth - stationRadius
 export const yPlacementBound = cavnasHeight - stationRadius
 
 // Vertices will be snapped using modulo of vertexExclusionRadius applied to x and y coordinates.
-// Will produce a more grid-like layout.
-export const shouldSnapToGrid = true
+// True will produce a more grid-like layout.
+export const shouldSnapToGrid = false
 
 // Station names
 export const names = [

@@ -18,17 +18,12 @@ import RailRoadGraph from './railroad'
 import { Distance, Stations } from './types'
 import { canFitStation, makeVertex, pointDistance, randBetween, randColor } from './utils'
 
-interface VertexProps {
-  radius?: number
-  name: string
-}
-
 let stage: Stage
 let stations: Stations
 let distances: Distance
 let graphBuildAttempts = 0
 
-function placeVertex({ name, radius = stationRadius }: VertexProps) {
+function placeVertex({ name, radius = stationRadius }: { name: string; radius?: number }) {
   let placed = false
   let attempts = 0
   while (!placed) {
@@ -79,7 +74,7 @@ function computeDistances(name: string, rr: RailRoadGraph) {
   for (let j = 0; j < keys.length; j++) {
     const key = keys[j]
     const value = stations[key].station
-    const distance = +pointDistance(target.x(), value.x(), target.y(), value.y()).toFixed(0)
+    const distance = pointDistance(target.x(), value.x(), target.y(), value.y())
     distances[name].push({ station: key, distance })
   }
   distances[name] = distances[name].sort((a, b) => a.distance - b.distance).slice(0, randBetween(1, 3))
@@ -96,12 +91,12 @@ function drawStations(graphLayer: Layer) {
       x: station.x() - station.radius() + 15,
       y: station.y() - station.radius() * 2,
       text: name,
-      fontSize: 12,
+      fontSize: 10,
       fontFamily: 'Roboto',
     })
     const textBg = new Konva.Rect({
       x: station.x() - 5 - station.radius() + 15,
-      y: station.y() - station.radius() * 2 - 2,
+      y: station.y() - station.radius() * 2 - 3,
       width: text.width() + 10,
       height: 14,
       fill: 'white',
