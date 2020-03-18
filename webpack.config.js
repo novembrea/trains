@@ -23,7 +23,9 @@ module.exports = {
   resolve: {
     extensions: ['.js', '.ts'],
     mainFields: ['module', 'browser', 'main'],
-    alias: {},
+    alias: {
+      trains: path.resolve(__dirname, 'src/trains/'),
+    },
   },
   module: {
     rules: [
