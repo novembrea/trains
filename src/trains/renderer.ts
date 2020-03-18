@@ -113,24 +113,22 @@ function render(rr: RailRoadGraph) {
 function drawStations(graphLayer: Layer) {
   Object.keys(stations).forEach(k => {
     const { station, name } = stations[k]
-    graphLayer.add(
-      station,
-      // TODO adjust coordinates more precisely.
-      new Konva.Rect({
-        x: station.x() - station.radius(),
-        y: station.y() - station.radius() * 2,
-        width: name.length * 8,
-        height: 10,
-        fill: 'white',
-      }),
-      new Konva.Text({
-        x: station.x() - station.radius(),
-        y: station.y() - station.radius() * 2,
-        text: name,
-        fontSize: 12,
-        fontFamily: 'Roboto',
-      }),
-    )
+    const text = new Konva.Text({
+      x: station.x() - station.radius(),
+      y: station.y() - station.radius() * 2,
+      text: name,
+      fontSize: 12,
+      fontFamily: 'Roboto',
+    })
+    const textBg = new Konva.Rect({
+      x: station.x() - 5 - station.radius(),
+      y: station.y() - station.radius() * 2 - 2,
+      width: text.width() + 10,
+      height: 14,
+      fill: 'white',
+      cornerRadius: 25,
+    })
+    graphLayer.add(station, textBg, text)
   })
 }
 
