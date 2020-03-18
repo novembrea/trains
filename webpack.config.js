@@ -27,7 +27,6 @@ module.exports = {
   },
   module: {
     rules: [
-      // .ts, .tsx
       {
         test: /\.tsx?$/,
         use: [
@@ -44,7 +43,6 @@ module.exports = {
       NODE_ENV: 'development',
       DEBUG: false,
     }),
-    // new BundleAnalyzerPlugin(),
     new CleanWebpackPlugin(),
     new HtmlWebpackPlugin({
       template: 'index.html',
