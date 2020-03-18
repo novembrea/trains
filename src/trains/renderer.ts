@@ -115,6 +115,14 @@ function drawStations(graphLayer: Layer) {
     const { station, name } = stations[k]
     graphLayer.add(
       station,
+      // TODO adjust coordinates more precisely.
+      new Konva.Rect({
+        x: station.x() - station.radius(),
+        y: station.y() - station.radius() * 2,
+        width: name.length * 8,
+        height: 10,
+        fill: 'white',
+      }),
       new Konva.Text({
         x: station.x() - station.radius(),
         y: station.y() - station.radius() * 2,
