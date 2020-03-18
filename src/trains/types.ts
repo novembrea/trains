@@ -10,3 +10,8 @@ export type Vertex = {
   semaphore: Semaphore
   type: VertexType
 }
+
+export type Pair = {
+  startX: number
+  startY: number
+}

@@ -1,4 +1,5 @@
 import RailRoadGraph from 'trains/railroad'
+import render from 'trains/renderer'
 import { makeVertex } from 'trains/utils'
 
 console.log('Choo Choo')
@@ -14,6 +15,7 @@ function main() {
     })
   })
   rr.print()
+  render(rr)
 }
 
 main()
