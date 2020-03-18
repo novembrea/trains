@@ -39,8 +39,8 @@ function placeVertex({ layer, name, radius = stationRadius }: VertexProps) {
       )
     }
 
-    let x = randBetween(vertexExclusionRadius, xPlacementBound)
-    let y = randBetween(vertexExclusionRadius, yPlacementBound)
+    let x = randBetween(stationRadius, xPlacementBound)
+    let y = randBetween(stationRadius, yPlacementBound)
     if (shouldSnapToGrid) {
       x -= x % vertexExclusionRadius
       y -= y % vertexExclusionRadius
