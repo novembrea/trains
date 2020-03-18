@@ -23,6 +23,12 @@ let stations: Stations
 let distances: Distance
 let graphBuildAttempts = 0
 
+/*
+  placeVertex() attempts to fit vertex on the canvas considering already occupied spots.
+  Constraints are based on the padded canvas dimensions and the constant value of exlusion radius,
+  function will recursively attempt to place vertex on a random coordinates until it succeeds or
+  attempts count reach predifined number - then it throws.
+*/
 function placeVertex({ name, radius = stationRadius }: { name: string; radius?: number }) {
   let placed = false
   let attempts = 0
@@ -67,7 +73,11 @@ function placeVertex({ name, radius = stationRadius }: { name: string; radius?: 
   }
 }
 
-function computeDistances(name: string, rr: RailRoadGraph) {
+/* 
+  computeDistances takes station name as argument and finds random N closest surrounding stations,
+  using pointDistance helper function. Result is written in the distances hash.
+*/
+function computeDistances(name: string) {
   distances[name] = []
   const keys = Object.keys(stations).filter(k => k !== name)
   const target = stations[name].station
@@ -78,12 +88,17 @@ function computeDistances(name: string, rr: RailRoadGraph) {
     distances[name].push({ station: key, distance })
   }
   distances[name] = distances[name].sort((a, b) => a.distance - b.distance).slice(0, randBetween(1, 3))
+}
+
+// addEdges assigns edges to the graph based on computed distances.
+function addEdges(name: string, rr: RailRoadGraph) {
   distances[name].forEach(entry => {
     const truncatedDistance = +(entry.distance / 10).toFixed(0)
     rr.addEdge(makeVertex(name, truncatedDistance, 'station'), makeVertex(entry.station, truncatedDistance, 'station'))
   })
 }
 
+// drawStations places station and its name on the canvas.
 function drawStations(graphLayer: Layer) {
   Object.keys(stations).forEach(k => {
     const { station, name } = stations[k]
@@ -158,15 +173,16 @@ function render(rr: RailRoadGraph): void {
 
   const graphLayer: Layer = new Konva.Layer()
   names.forEach(name => placeVertex({ name }))
-  names.forEach(name => computeDistances(name, rr))
-
-  drawEdges(rr, graphLayer)
-  drawStations(graphLayer)
+  names.forEach(computeDistances)
+  names.forEach(name => addEdges(name, rr))
 
   if (!rr.isDisconnected()) {
     graphBuildAttempts++
     return render(new RailRoadGraph(names))
   }
+
+  drawEdges(rr, graphLayer)
+  drawStations(graphLayer)
   stage.add(graphLayer)
   stage.draw()
   graphBuildAttempts = 0
