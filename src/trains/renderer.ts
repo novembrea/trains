@@ -218,7 +218,7 @@ function render(rr: RailRoadGraph): void {
     return render(new RailRoadGraph(names))
   }
 
-  console.log(`graph was build after ${graphBuildAttempts} attempts`)
+  info({ text: `attempts needed to build graph: ${graphBuildAttempts + 1}`, bg: 'lightgreen' })
   drawEdges(rr, graphLayer)
   drawStations(graphLayer)
   stage.add(graphLayer)
