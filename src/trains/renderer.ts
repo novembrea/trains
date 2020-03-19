@@ -21,9 +21,11 @@ import {
   doesLineIntersectCircle,
   info,
   makeVertex,
+  memoizedPathEnd,
   pointDistance,
   randBetween,
   randColor,
+  round,
 } from './utils'
 
 let config: Config
@@ -231,7 +233,7 @@ function render(c?: Config): void {
   const origin = stations[rr.vertices[0]]
   // const target = stations[rr.vertices[0]]
   const [x1, y1] = [origin.station.x(), origin.station.y()]
-  // const [x2, y2] = [target.station.x(), target.station.y()]
+  // const [x2, y2] = [target.stati/on.x(), target.station.y()]
   const shape = new Konva.RegularPolygon({
     sides: 6,
     x: x1,
@@ -250,10 +252,17 @@ function render(c?: Config): void {
   let step = 1
 
   const path = origin.edges[0]
+  let memoEnd = memoizedPathEnd()
+
   let anim = new Konva.Animation((frame: any) => {
     pos++
     const { x, y } = path.getPointAtLength(pos * step)
+    const { x: x2, y: y2 } = memoEnd(path)
+
     shape.position({ x, y })
+    if (round(x) === x2 && round(y) === y2) {
+      console.log('the end')
+    }
   }, trainLayer)
 
   anim.start()

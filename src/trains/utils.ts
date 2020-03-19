@@ -1,5 +1,7 @@
+import { Path } from 'konva/types/shapes/Path'
+
 import { vertexExclusionRadius } from './constants'
-import { Stations, Vertex, VertexType } from './types'
+import { Pair, Stations, Vertex, VertexType } from './types'
 
 export const printVertex = (v: Vertex): string => `${v.name}[${v.weight}]`
 export const makeVertex = (name: string, weight: number, type: VertexType): Vertex => ({
@@ -9,6 +11,7 @@ export const makeVertex = (name: string, weight: number, type: VertexType): Vert
   type,
 })
 
+export const round = (n: number) => +n.toFixed(0)
 export const byid = (id: string) => document.getElementById(id)!
 export const randBetween = (min: number, max: number) => Math.random() * max + min
 export const randElement = (target: string[]) => target[Math.floor(Math.random() * target.length)]
@@ -16,6 +19,20 @@ export const anyButGiven = (given: string[], target: string[]) => randElement(ta
 export const randColor = () => '#' + (((1 << 24) * Math.random()) | 0).toString(16)
 export const pointDistance = (x1: number, x2: number, y1: number, y2: number) =>
   +Math.hypot(x2 - x1, y2 - y1).toFixed(0)
+
+export const memoizedPathEnd = (): ((path: Path) => Pair) => {
+  let cache: Pair = { x: 0, y: 0 }
+  let prevPath = -1
+  return (path: Path) => {
+    if (prevPath === path._id) {
+      return cache
+    }
+    prevPath = path._id
+    const { x, y } = path.getPointAtLength(path.getLength())
+    cache = { x: round(x), y: round(y) }
+    return cache
+  }
+}
 
 interface intersectionArgs {
   x1: number
