@@ -16,7 +16,7 @@ import {
 } from './constants'
 import RailRoadGraph from './railroad'
 import { Distance, Stations } from './types'
-import { canFitStation, makeVertex, pointDistance, randBetween, randColor } from './utils'
+import { canFitStation, doesLineIntersectCircle, makeVertex, pointDistance, randBetween, randColor } from './utils'
 
 let stage: Stage
 let stations: Stations
@@ -50,10 +50,11 @@ function placeVertex({ name, radius = stationRadius }: { name: string; radius?: 
     if (shouldSnapToGrid) {
       x -= x % vertexExclusionRadius
       y -= y % vertexExclusionRadius
-    } else {
-      x -= x % 50
-      y -= y % 50
     }
+    // else {
+    //   x -= x % 50
+    //   y -= y % 50
+    // }
 
     if (x < stationRadius || y < stationRadius || x > xPlacementBound || y > yPlacementBound) continue
     if (!canFitStation(x, y, stations)) {
@@ -99,6 +100,23 @@ function addEdges(name: string, rr: RailRoadGraph) {
     const truncatedDistance = +(entry.distance / 10).toFixed(0)
     rr.addEdge(makeVertex(name, truncatedDistance, 'station'), makeVertex(entry.station, truncatedDistance, 'station'))
   })
+}
+
+function detectCollisions(name: string, rr: RailRoadGraph) {
+  // const removeQueue: string[] = []
+  const origin = stations[name].station
+  const [x1, y1] = [origin.x(), origin.y()]
+  rr.adjList.get(name)!.forEach(vertex => {
+    const [x2, y2] = [stations[vertex.name].station.x(), stations[vertex.name].station.y()]
+    const hay = rr.adjList.get(name)!.filter(v => v.name !== vertex.name)
+    hay.forEach(v => {
+      const [cx, cy] = [stations[v.name].station.x(), stations[v.name].station.y()]
+      if (doesLineIntersectCircle({ x1, y1, x2, y2, cx, cy, radius: stationRadius })) {
+        console.log(`${name} intersects with ${v.name} to ${vertex.name}`)
+      }
+    })
+  })
+  console.log('----------------------')
 }
 
 // drawStations places station and its name on the canvas.
@@ -179,10 +197,12 @@ function render(rr: RailRoadGraph): void {
   names.forEach(name => placeVertex({ name }))
   names.forEach(computeDistances)
   names.forEach(name => addEdges(name, rr))
+  names.forEach(name => detectCollisions(name, rr))
 
   console.log(rr.adjList)
   if (!rr.isDisconnected()) {
     graphBuildAttempts++
+    console.clear()
     return render(new RailRoadGraph(names))
   }
 
