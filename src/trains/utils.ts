@@ -9,6 +9,7 @@ export const makeVertex = (name: string, weight: number, type: VertexType): Vert
   type,
 })
 
+export const byid = (id: string) => document.getElementById(id)!
 export const randBetween = (min: number, max: number) => Math.random() * max + min
 export const randElement = (target: string[]) => target[Math.floor(Math.random() * target.length)]
 export const anyButGiven = (given: string[], target: string[]) => randElement(target.filter(n => !given.includes(n)))

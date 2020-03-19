@@ -8,6 +8,7 @@ class RailRoadGraph {
   constructor(vertices: string[]) {
     this.vertices = vertices
     this.adjList = new Map()
+
     this.init()
   }
 
@@ -22,14 +23,9 @@ class RailRoadGraph {
   addEdge(a: Vertex, b: Vertex) {
     const aList = this.adjList.get(a.name)
     const bList = this.adjList.get(b.name)
-    if (!aList || !bList) throw Error('one of two vertices is not found')
-
-    if (aList.find(v => v.name === b.name) === undefined) {
-      aList.push(b)
-    }
-    if (bList.find(v => v.name === a.name) === undefined) {
-      bList.push(a)
-    }
+    if (!aList || !bList) throw Error('one of two vertices or both not found')
+    if (aList.find(v => v.name === b.name) === undefined) aList.push(b)
+    if (bList.find(v => v.name === a.name) === undefined) bList.push(a)
   }
 
   disconnectEdges(a: string, b: string) {
