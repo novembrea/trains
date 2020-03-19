@@ -115,7 +115,10 @@ function addEdges(name: string, rr: RailRoadGraph) {
   Such collisions happen due to the random nature of assigning edges between given vertex and its closest N neighbours.
   Sometimes it produces an unnatural connections of
   ![A<->B<->C] and [A<->C] where distances d are d(A,B) + d(B,C) = d(A,C)
-  This means that [A<->C] edge goes through B vertex and therefore can be removed in favor of a more realistic connection [A<->B<->C].
+  This means that [A<->C] edge goes through B vertex and therefore can be removed in favor
+  of a more realistic connection [A<->B<->C].
+  What is considered to be a collision is dictated by radius argument in doesLineIntersectCircle() func,
+  it's set to be the double of station initial radius, but it's tunable.
 */
 function disconnectCollisions(name: string, rr: RailRoadGraph) {
   const origin = stations[name].station
@@ -125,7 +128,7 @@ function disconnectCollisions(name: string, rr: RailRoadGraph) {
     const hay = rr.adjList.get(name)!.filter(v => v.name !== vertex.name)
     hay.forEach(v => {
       const [cx, cy] = [stations[v.name].station.x(), stations[v.name].station.y()]
-      if (doesLineIntersectCircle({ x1, y1, x2, y2, cx, cy, radius: stationRadius })) {
+      if (doesLineIntersectCircle({ x1, y1, x2, y2, cx, cy, radius: stationRadius * 2 })) {
         info({ text: `[${name}] intersects with [${v.name}] on the way to [${vertex.name}]`, bg: 'lightgray' })
         rr.disconnectEdges(name, vertex.name)
       }
