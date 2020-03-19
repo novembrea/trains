@@ -1,4 +1,5 @@
 //? All widths, heights and radiuses are based on pixels
+import { Config } from './types'
 
 export const canvasWidth = 1400
 export const cavnasHeight = 800
@@ -50,3 +51,8 @@ export const names = [
   'Yankee',
   'Zulu',
 ]
+
+export const defaultConfig: Config = {
+  shouldSnapToGrid: false,
+  stationsCount: names.length,
+}

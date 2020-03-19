@@ -7,15 +7,15 @@ import {
   abortPlacementAttempts,
   canvasWidth,
   cavnasHeight,
+  defaultConfig,
   names,
-  shouldSnapToGrid,
   stationRadius,
   vertexExclusionRadius,
   xPlacementBound,
   yPlacementBound,
 } from './constants'
 import RailRoadGraph from './railroad'
-import { Distance, Stations } from './types'
+import { Config, Distance, Stations } from './types'
 import {
   canFitStation,
   doesLineIntersectCircle,
@@ -26,6 +26,7 @@ import {
   randColor,
 } from './utils'
 
+let config: Config
 let stage: Stage
 let stations: Stations
 let distances: Distance
@@ -55,14 +56,13 @@ function placeVertex({ name, radius = stationRadius }: { name: string; radius?: 
 
     let x = randBetween(stationRadius, xPlacementBound)
     let y = randBetween(stationRadius, yPlacementBound)
-    if (shouldSnapToGrid) {
+    if (config.shouldSnapToGrid) {
       x -= x % vertexExclusionRadius
       y -= y % vertexExclusionRadius
+    } else {
+      x -= x % 50
+      y -= y % 50
     }
-    // else {
-    //   x -= x % 50
-    //   y -= y % 50
-    // }
 
     if (x < stationRadius || y < stationRadius || x > xPlacementBound || y > yPlacementBound) continue
     if (!canFitStation(x, y, stations)) {
@@ -194,7 +194,9 @@ function drawEdges(rr: RailRoadGraph, graphLayer: Layer) {
   })
 }
 
-function render(rr: RailRoadGraph): void {
+function render(c?: Config): void {
+  config = c || defaultConfig
+  const rr = new RailRoadGraph(names.slice(0, config.stationsCount))
   if (graphBuildAttempts === abortGraphBuildAttempts) {
     throw Error("can't build graph")
   }
@@ -218,7 +220,7 @@ function render(rr: RailRoadGraph): void {
   if (!rr.isDisconnected()) {
     graphBuildAttempts++
     console.clear()
-    return render(new RailRoadGraph(names))
+    return render()
   }
 
   info({ text: `attempts needed to build graph: ${graphBuildAttempts + 1}`, bg: 'lightgreen' })
