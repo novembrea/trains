@@ -14,6 +14,7 @@ import {
   xPlacementBound,
   yPlacementBound,
 } from './constants'
+import dijkstra from './dijkstra'
 import RailRoadGraph from './railroad'
 import { Config, Distance, Stations } from './types'
 import {
@@ -225,6 +226,9 @@ function render(c?: Config): void {
   info({ text: `attempts needed to build graph: ${graphBuildAttempts + 1}`, bg: 'lightgreen' })
   graphBuildAttempts = 0
 
+  const { start, end } = rr.randomStartEnd()
+  dijkstra(start, end, rr)
+
   drawEdges(rr, graphLayer)
   drawStations(graphLayer)
   stage.add(graphLayer)
@@ -261,7 +265,6 @@ function render(c?: Config): void {
 
     shape.position({ x, y })
     if (round(x) === x2 && round(y) === y2) {
-      console.log('the end')
     }
   }, trainLayer)
 
