@@ -1,5 +1,7 @@
+import sample from 'lodash/sample'
+
 import { Vertex } from './types'
-import { info, printVertex } from './utils'
+import { anyButGiven, info, printVertex } from './utils'
 
 class RailRoadGraph {
   vertices: string[]
@@ -49,6 +51,18 @@ class RailRoadGraph {
     }
     visit(this.adjList.get(this.vertices[0])![0])
     return Object.keys(visited).length === this.vertices.length
+  }
+
+  randomStartEnd(): { start: Vertex; end: Vertex } {
+    const a = sample(this.vertices)!
+    const b = anyButGiven([a], this.vertices)
+    return { start: sample(this.adjList.get(a))!, end: sample(this.adjList.get(b))! }
+  }
+
+  randomVertexAtDistance(a: Vertex, distance: number): { vertex: Vertex } {
+    const rand = anyButGiven([a.name], this.vertices)
+    const rn = sample(this.adjList.get(rand))!
+    return { vertex: rn }
   }
 
   print() {

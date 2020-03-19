@@ -160,19 +160,19 @@ function drawEdges(rr: RailRoadGraph, graphLayer: Layer) {
   rr.adjList.forEach((vertices, station) => {
     vertices.forEach(vertex => {
       const { name, weight } = vertex
-      const [xStart, yStart] = [stations[station].station.x(), stations[station].station.y()]
-      const [xEnd, yEnd] = [stations[name].station.x(), stations[name].station.y()]
+      const [x1, y1] = [stations[station].station.x(), stations[station].station.y()]
+      const [x2, y2] = [stations[name].station.x(), stations[name].station.y()]
 
       const edge = new Konva.Path({
-        data: `M'${xStart} ${yStart} L ${xEnd} ${yEnd}`,
+        data: `M'${x1} ${y1} L ${x2} ${y2}`,
         id: `${station}-${name}`,
         stroke: 'black',
         strokeWidth: 1,
       })
       stations[station].edges.push(edge)
       const circle = new Konva.Circle({
-        x: (xStart + xEnd) / 2,
-        y: (yStart + yEnd) / 2,
+        x: (x1 + x2) / 2,
+        y: (y1 + y2) / 2,
         radius: 9,
         fill: 'white',
         stroke: 'black',
@@ -180,8 +180,8 @@ function drawEdges(rr: RailRoadGraph, graphLayer: Layer) {
       })
       const text = weight.toFixed(0)
       const marker = new Konva.Text({
-        x: (xStart + xEnd) / 2 - (text.length > 1 ? 5 : 2),
-        y: (yStart + yEnd) / 2 - 3.5,
+        x: (x1 + x2) / 2 - (text.length > 1 ? 5 : 2),
+        y: (y1 + y2) / 2 - 3.5,
         fontSize: 10,
         verticalAlign: 'middle',
         text,
@@ -220,13 +220,43 @@ function render(c?: Config): void {
     console.clear()
     return render(config)
   }
-
   info({ text: `attempts needed to build graph: ${graphBuildAttempts + 1}`, bg: 'lightgreen' })
+  graphBuildAttempts = 0
+
   drawEdges(rr, graphLayer)
   drawStations(graphLayer)
   stage.add(graphLayer)
+
+  const trainLayer = new Konva.Layer()
+  const origin = stations[rr.vertices[0]]
+  // const target = stations[rr.vertices[0]]
+  const [x1, y1] = [origin.station.x(), origin.station.y()]
+  // const [x2, y2] = [target.station.x(), target.station.y()]
+  const shape = new Konva.RegularPolygon({
+    sides: 6,
+    x: x1,
+    y: y1,
+    radius: 5,
+    fill: 'red',
+    stroke: 'black',
+    strokeWidth: 1,
+  })
+
+  trainLayer.add(shape)
+
+  stage.add(trainLayer)
   stage.draw()
-  graphBuildAttempts = 0
+  let pos = 0
+  let step = 1
+
+  const path = origin.edges[0]
+  let anim = new Konva.Animation((frame: any) => {
+    pos++
+    const { x, y } = path.getPointAtLength(pos * step)
+    shape.position({ x, y })
+  }, trainLayer)
+
+  anim.start()
 }
 
 export default render
