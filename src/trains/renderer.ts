@@ -59,9 +59,6 @@ function placeVertex({ name, radius = stationRadius }: { name: string; radius?: 
     if (config.shouldSnapToGrid) {
       x -= x % vertexExclusionRadius
       y -= y % vertexExclusionRadius
-    } else {
-      x -= x % 50
-      y -= y % 50
     }
 
     if (x < stationRadius || y < stationRadius || x > xPlacementBound || y > yPlacementBound) continue
@@ -196,7 +193,8 @@ function drawEdges(rr: RailRoadGraph, graphLayer: Layer) {
 
 function render(c?: Config): void {
   config = c || defaultConfig
-  const rr = new RailRoadGraph(names.slice(0, config.stationsCount))
+  let selecetedNames = names.slice(0, config.stationsCount)
+  const rr = new RailRoadGraph(selecetedNames.slice(0, config.stationsCount))
   if (graphBuildAttempts === abortGraphBuildAttempts) {
     throw Error("can't build graph")
   }
@@ -213,14 +211,14 @@ function render(c?: Config): void {
   })
 
   const graphLayer: Layer = new Konva.Layer()
-  names.forEach(name => placeVertex({ name }))
-  names.forEach(computeDistances)
-  names.forEach(name => addEdges(name, rr))
-  names.forEach(name => disconnectCollisions(name, rr))
+  selecetedNames.forEach(name => placeVertex({ name }))
+  selecetedNames.forEach(computeDistances)
+  selecetedNames.forEach(name => addEdges(name, rr))
+  selecetedNames.forEach(name => disconnectCollisions(name, rr))
   if (!rr.isDisconnected()) {
     graphBuildAttempts++
     console.clear()
-    return render()
+    return render(config)
   }
 
   info({ text: `attempts needed to build graph: ${graphBuildAttempts + 1}`, bg: 'lightgreen' })
