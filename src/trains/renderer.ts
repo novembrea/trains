@@ -16,7 +16,15 @@ import {
 } from './constants'
 import RailRoadGraph from './railroad'
 import { Distance, Stations } from './types'
-import { canFitStation, doesLineIntersectCircle, makeVertex, pointDistance, randBetween, randColor } from './utils'
+import {
+  canFitStation,
+  doesLineIntersectCircle,
+  info,
+  makeVertex,
+  pointDistance,
+  randBetween,
+  randColor,
+} from './utils'
 
 let stage: Stage
 let stations: Stations
@@ -102,8 +110,14 @@ function addEdges(name: string, rr: RailRoadGraph) {
   })
 }
 
-function detectCollisions(name: string, rr: RailRoadGraph) {
-  // const removeQueue: string[] = []
+/* 
+  disconnectCollisions removes edge between two vertices if said edge collides with a thrid vertex on its path.
+  Such collisions happen due to the random nature of assigning edges between given vertex and its closest N neighbours.
+  Sometimes it produces an unnatural connections of
+  ![A<->B<->C] and [A<->C] where distances d are d(A,B) + d(B,C) = d(A,C)
+  This means that [A<->C] edge goes through B vertex and therefore can be removed in favor of a more realistic connection [A<->B<->C].
+*/
+function disconnectCollisions(name: string, rr: RailRoadGraph) {
   const origin = stations[name].station
   const [x1, y1] = [origin.x(), origin.y()]
   rr.adjList.get(name)!.forEach(vertex => {
@@ -112,11 +126,11 @@ function detectCollisions(name: string, rr: RailRoadGraph) {
     hay.forEach(v => {
       const [cx, cy] = [stations[v.name].station.x(), stations[v.name].station.y()]
       if (doesLineIntersectCircle({ x1, y1, x2, y2, cx, cy, radius: stationRadius })) {
-        console.log(`${name} intersects with ${v.name} to ${vertex.name}`)
+        info({ text: `[${name}] intersects with [${v.name}] on the way to [${vertex.name}]`, bg: 'lightgray' })
+        rr.disconnectEdges(name, vertex.name)
       }
     })
   })
-  console.log('----------------------')
 }
 
 // drawStations places station and its name on the canvas.
@@ -197,15 +211,14 @@ function render(rr: RailRoadGraph): void {
   names.forEach(name => placeVertex({ name }))
   names.forEach(computeDistances)
   names.forEach(name => addEdges(name, rr))
-  names.forEach(name => detectCollisions(name, rr))
-
-  console.log(rr.adjList)
+  names.forEach(name => disconnectCollisions(name, rr))
   if (!rr.isDisconnected()) {
     graphBuildAttempts++
     console.clear()
     return render(new RailRoadGraph(names))
   }
 
+  console.log(`graph was build after ${graphBuildAttempts} attempts`)
   drawEdges(rr, graphLayer)
   drawStations(graphLayer)
   stage.add(graphLayer)

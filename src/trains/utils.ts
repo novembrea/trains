@@ -52,3 +52,6 @@ export const canFitStation = (x: number, y: number, stations: Stations): boolean
   }
   return true
 }
+
+export const info = ({ text, bg = 'gold' }: { text: string; bg?: string }) =>
+  console.log(`%c ${text}`, `background: ${bg}; color: black`)

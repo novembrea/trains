@@ -1,5 +1,5 @@
 import { Vertex } from './types'
-import { printVertex } from './utils'
+import { info, printVertex } from './utils'
 
 class RailRoadGraph {
   vertices: string[]
@@ -30,6 +30,18 @@ class RailRoadGraph {
     if (bList.find(v => v.name === a.name) === undefined) {
       bList.push(a)
     }
+  }
+
+  disconnectEdges(a: string, b: string) {
+    info({ text: `disconnecting colliding edge [${a} ⇄ ${b}]` })
+    this.adjList.set(
+      a,
+      this.adjList.get(a)!.filter(v => v.name !== b),
+    )
+    this.adjList.set(
+      b,
+      this.adjList.get(b)!.filter(v => v.name !== a),
+    )
   }
 
   isDisconnected(): boolean {
