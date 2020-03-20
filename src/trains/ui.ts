@@ -1,25 +1,49 @@
-import { defaultConfig, names } from './constants'
+import { Animation } from 'konva/types/Animation'
+
+import { names } from './constants'
 import render from './renderer'
 import { Config } from './types'
 import { byid } from './utils'
 
-let config: Config = defaultConfig
+const uiRefreshBtn = byid('refresh')!
 
-const uiRefresh = byid('refresh')!
+const uiPlayBtn = byid('play')!
+
 const uiStationSlider = byid('stations-slider')!
 const uiStationCounter = byid('stations-counter')!
 const uiSnapCheckbox = byid('snap-checkbox')!
 
+export function bindPlayBtn(anim: Animation) {
+  let isPlaying = false
+  uiPlayBtn.addEventListener('click', () => {
+    if (!isPlaying) {
+      uiPlayBtn.innerText = 'STOP'
+      isPlaying = true
+      return anim.start()
+    }
+    uiPlayBtn.innerText = 'PLAY'
+    isPlaying = false
+    return anim.stop()
+  })
+}
+
 export default function initUI() {
+  let config: Config = {
+    shouldSnapToGrid: false,
+    stationsCount: names.length,
+    playBtn: uiPlayBtn,
+  }
+
+  uiRefreshBtn.addEventListener('click', () => {
+    render(config)
+  })
+
   if (localStorage.getItem('station_counter')) {
     Object.assign(config, {
       stationsCount: localStorage.getItem('station_counter'),
+      playBtn: uiPlayBtn,
     })
   }
-
-  uiRefresh.addEventListener('click', () => {
-    render(config)
-  })
 
   // Stations slider.
   uiStationCounter.innerText = config.stationsCount.toString()

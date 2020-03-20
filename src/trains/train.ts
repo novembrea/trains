@@ -1,52 +1,114 @@
-import { Arrow } from 'konva/types/shapes/Arrow'
+import { Circle } from 'konva/types/shapes/Circle'
 import { Path } from 'konva/types/shapes/Path'
+import { RegularPolygon } from 'konva/types/shapes/RegularPolygon'
 
-export default class Train {
-  currentPath: number
-  id: number
-  maxSpeed: number
-  pathLength: number
+import { Vertex } from './types'
+import { info } from './utils'
+
+interface TrainProps {
+  name: string
   route: Path[]
-  shape: Arrow
-  trainType: string
-  velocity: number
-  currentPos: number
+  endVertex: Vertex
+}
+
+export class Train {
+  currentPosition: number
+  currentRouteIndex: number
+  endVertex: Vertex
   hasArrived: boolean
   name: string
-  lastNode: Node
-  constructor(id: number, name: string, trainType: string, shape: Arrow, route: Path[] = [], node: Node) {
-    this.currentPath = 0
-    this.id = id
-    this.maxSpeed = 0
-    this.pathLength = route.length
+  pathLength: number
+  route: Path[]
+
+  constructor({ route, endVertex, name }: TrainProps) {
     this.route = route
-    this.shape = shape
-    this.trainType = trainType
-    this.velocity = 0
-    this.currentPos = 0
-    this.hasArrived = false
     this.name = name
-    this.lastNode = node
-  }
-  currentRoute() {
-    console.log(this.route)
-    if (this.route[this.currentPath] === undefined) {
-      return this.route[this.currentPath - 1]
-    }
-    return this.route[this.currentPath]
+    this.endVertex = endVertex
+
+    this.pathLength = route.length
+    this.currentRouteIndex = 0
+    this.currentPosition = 0
+    this.hasArrived = false
   }
 
-  public incrementPos = () => {
-    this.currentPos++
+  get currentRoute() {
+    return this.route[this.currentRouteIndex]
   }
 
-  public set routes(route: Path[]) {
+  public updateRoute(route: Path[], endVertex: Vertex) {
+    info({ text: `new route for ${this.name}`, bg: 'lighgray' })
+    info({ text: route.map(r => r.name()).join(' ⇄ '), bg: 'lighgray' })
+    this.hasArrived = false
+    this.currentRouteIndex = 0
+    this.currentPosition = 0
     this.route = route
+    this.pathLength = route.length
+    this.endVertex = endVertex
   }
-  public incrementRoute = () => {
-    this.currentPath++
-    if (this.currentPath === this.pathLength) {
+
+  public incrementPos() {
+    this.currentPosition++
+  }
+
+  public nextStation() {
+    console.log(
+      `from: ${this.currentRoute
+        .name()
+        .split('-')
+        .pop()}, next up ${this.route[this.currentRouteIndex + 1]
+        ?.name()
+        .split('-')
+        .pop() ?? 'end'}`,
+    )
+    let prevPos = this.currentPosition
+    this.currentPosition = 1
+
+    this.currentRouteIndex++
+    if (this.currentRouteIndex === this.pathLength) {
       this.hasArrived = true
+      this.currentPosition = prevPos
     }
+  }
+}
+
+export class Freight extends Train {
+  shape: RegularPolygon
+  velocity: number
+  acceleration: number
+
+  constructor({ name, route, endVertex }: TrainProps, shape: RegularPolygon) {
+    super({ name, route, endVertex })
+    this.shape = shape
+
+    this.velocity = 2
+    this.acceleration = 0.1
+  }
+}
+
+export class Passanger extends Train {
+  shape: Circle
+  velocity: number
+  acceleration: number
+
+  constructor({ name, route, endVertex }: TrainProps, shape: RegularPolygon) {
+    super({ name, route, endVertex })
+    this.shape = shape
+
+    this.velocity = 0.8
+    this.acceleration = 0.1
+  }
+}
+
+export class Bullet extends Train {
+  shape: RegularPolygon
+  velocity: number
+  acceleration: number
+
+  constructor({ name, route, endVertex }: TrainProps, shape: RegularPolygon) {
+    super({ name, route, endVertex })
+    this.shape = shape
+
+    this.velocity = 0.2
+    this.acceleration = 0.2
   }
 }

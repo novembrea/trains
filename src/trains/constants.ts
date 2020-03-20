@@ -23,6 +23,8 @@ export const yPlacementBound = cavnasHeight - stationRadius
 // True will produce a more grid-like layout.
 export const shouldSnapToGrid = false
 
+export const trainRadius = 8
+
 // Station names
 export const names = [
   'Alpha',
@@ -49,10 +51,12 @@ export const names = [
   'Whiskey',
   'XRay',
   'Yankee',
-  'Zulu',
+  'Zebra',
+  'Zero',
 ]
 
 export const defaultConfig: Config = {
   shouldSnapToGrid: false,
   stationsCount: names.length,
+  playBtn: document.getElementById('play')!,
 }

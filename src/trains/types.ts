@@ -22,6 +22,7 @@ export type Pair = {
 export type Config = {
   shouldSnapToGrid: boolean
   stationsCount: number
+  playBtn: HTMLElement
 }
 
 export type Stations = { [key: string]: { name: string; edges: Path[]; station: Circle } }

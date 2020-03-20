@@ -1,6 +1,8 @@
 import { Path } from 'konva/types/shapes/Path'
 
 import { vertexExclusionRadius } from './constants'
+import dijkstra from './dijkstra'
+import RailRoadGraph from './railroad'
 import { Pair, Stations, Vertex, VertexType } from './types'
 
 export const printVertex = (v: Vertex): string => `${v.name}[${v.weight}]`
@@ -22,12 +24,12 @@ export const pointDistance = (x1: number, x2: number, y1: number, y2: number) =>
 
 export const memoizedPathEnd = (): ((path: Path) => Pair) => {
   let cache: Pair = { x: 0, y: 0 }
-  let prevPath = -1
+  let prevPath = ''
   return (path: Path) => {
-    if (prevPath === path._id) {
+    if (prevPath === path.name()) {
       return cache
     }
-    prevPath = path._id
+    prevPath = path.name()
     const { x, y } = path.getPointAtLength(path.getLength())
     cache = { x: round(x), y: round(y) }
     return cache
@@ -69,6 +71,26 @@ export const canFitStation = (x: number, y: number, stations: Stations): boolean
     if (xDiff < vertexExclusionRadius && yDiff < vertexExclusionRadius) return false
   }
   return true
+}
+
+export const generateRoute = (start: Vertex, end: Vertex, g: RailRoadGraph, stations: Stations): Path[] | null => {
+  let p: string[]
+  try {
+    p = dijkstra(start, end, g)
+  } catch (error) {
+    return null
+  }
+
+  console.log(`fastest route: ${p.join('-')}`)
+  return [
+    stations[start.name].edges.find(edge => edge.name() === `${start.name}-${p[0]}`)!,
+    ...p
+      .map((path, i) => {
+        const r = stations[path].edges.find(edge => edge.name() === `${path}-${p[i + 1]}`)!
+        return r
+      })
+      .filter(Boolean),
+  ]
 }
 
 export const info = ({ text, bg = 'white' }: { text: string; bg?: string }) =>

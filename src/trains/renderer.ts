@@ -1,5 +1,6 @@
 import Konva from 'konva'
 import { Layer } from 'konva/types/Layer'
+import { Path } from 'konva/types/shapes/Path'
 import { Stage } from 'konva/types/Stage'
 
 import {
@@ -10,16 +11,19 @@ import {
   defaultConfig,
   names,
   stationRadius,
+  trainRadius,
   vertexExclusionRadius,
   xPlacementBound,
   yPlacementBound,
 } from './constants'
-import dijkstra from './dijkstra'
 import RailRoadGraph from './railroad'
+import { Freight, Passanger } from './train'
 import { Config, Distance, Stations } from './types'
+import { bindPlayBtn } from './ui'
 import {
   canFitStation,
   doesLineIntersectCircle,
+  generateRoute,
   info,
   makeVertex,
   memoizedPathEnd,
@@ -168,7 +172,7 @@ function drawEdges(rr: RailRoadGraph, graphLayer: Layer) {
 
       const edge = new Konva.Path({
         data: `M'${x1} ${y1} L ${x2} ${y2}`,
-        id: `${station}-${name}`,
+        name: `${station}-${name}`,
         stroke: 'black',
         strokeWidth: 1,
       })
@@ -226,49 +230,72 @@ function render(c?: Config): void {
   info({ text: `attempts needed to build graph: ${graphBuildAttempts + 1}`, bg: 'lightgreen' })
   graphBuildAttempts = 0
 
-  const { start, end } = rr.randomStartEnd()
-  dijkstra(start, end, rr)
-
   drawEdges(rr, graphLayer)
   drawStations(graphLayer)
   stage.add(graphLayer)
 
   const trainLayer = new Konva.Layer()
-  const origin = stations[rr.vertices[0]]
-  // const target = stations[rr.vertices[0]]
-  const [x1, y1] = [origin.station.x(), origin.station.y()]
-  // const [x2, y2] = [target.stati/on.x(), target.station.y()]
-  const shape = new Konva.RegularPolygon({
-    sides: 6,
-    x: x1,
-    y: y1,
-    radius: 5,
-    fill: 'red',
-    stroke: 'black',
-    strokeWidth: 1,
-  })
-
-  trainLayer.add(shape)
-
+  let trainNames = ['Howler']
+  const trains: (Freight | Passanger)[] = []
+  for (const name of trainNames) {
+    const { start, end } = rr.randomStartEnd()
+    console.log(`generated start ${start.name} end ${end.name}`)
+    let route: Path[] | null = []
+    const make = () => {
+      route = generateRoute(start, end, rr, stations)
+    }
+    make()
+    if (route === null || route.length === 0) make()
+    let shape: any
+    let train: any
+    shape = new Konva.RegularPolygon({
+      x: stations[start.name].station.x(),
+      y: stations[start.name].station.y(),
+      sides: 3,
+      radius: trainRadius,
+      fill: randColor(),
+      stroke: 'black',
+      strokeWidth: 1,
+    })
+    train = new Freight({ name, route, endVertex: end }, shape)
+    if (name == 'Fatty') {
+      shape = new Konva.Circle({
+        x: stations[start.name].station.x(),
+        y: stations[start.name].station.y(),
+        radius: 3,
+        fill: randColor(),
+        stroke: 'black',
+        strokeWidth: 1,
+      })
+      train = new Passanger({ name, route, endVertex: end }, shape)
+    }
+    trainLayer.add(shape)
+    trains.push(train)
+  }
   stage.add(trainLayer)
-  stage.draw()
-  let pos = 0
-  let step = 1
 
-  const path = origin.edges[0]
   let memoEnd = memoizedPathEnd()
-
   let anim = new Konva.Animation((frame: any) => {
-    pos++
-    const { x, y } = path.getPointAtLength(pos * step)
-    const { x: x2, y: y2 } = memoEnd(path)
-
-    shape.position({ x, y })
-    if (round(x) === x2 && round(y) === y2) {
+    for (let train of trains) {
+      const { x: x2, y: y2 } = memoEnd(train.currentRoute)
+      const { currentRoute } = train
+      const { x, y } = currentRoute.getPointAtLength(train.velocity * train.currentPosition)
+      if (round(x) === x2 && round(y) === y2) {
+        train.nextStation()
+        if (train.hasArrived) {
+          console.log('the end!')
+          const { vertex: end } = rr.randomVertexAtDistance(train.endVertex, 5)
+          console.log(`${train.name} rolls again ${train.endVertex.name} ⇄ ${end.name}`)
+          const generated = generateRoute(train.endVertex, end, rr, stations)!
+          train.updateRoute(generated, end)
+        }
+      }
+      train.shape.position({ x: x, y: y })
+      train.incrementPos()
     }
   }, trainLayer)
 
-  anim.start()
+  bindPlayBtn(anim)
 }
 
 export default render
