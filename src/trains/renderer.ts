@@ -11,7 +11,6 @@ import {
   defaultConfig,
   names,
   stationRadius,
-  trainRadius,
   vertexExclusionRadius,
   xPlacementBound,
   yPlacementBound,
@@ -26,7 +25,6 @@ import {
   generateRoute,
   info,
   makeVertex,
-  memoizedPathEnd,
   pointDistance,
   randBetween,
   randColor,
@@ -235,61 +233,55 @@ function render(c?: Config): void {
   stage.add(graphLayer)
 
   const trainLayer = new Konva.Layer()
-  let trainNames = ['Howler']
-  const trains: (Freight | Passanger)[] = []
-  for (const name of trainNames) {
-    const { start, end } = rr.randomStartEnd()
-    console.log(`generated start ${start.name} end ${end.name}`)
+  const trains: (Freight | Passanger)[] = [
+    new Freight({ name: 'Freight 1', route: [], endVertex: rr.anyVertex() }, 0, 0),
+    new Freight({ name: 'Freight 2', route: [], endVertex: rr.anyVertex() }, 0, 0),
+    new Freight({ name: 'Freight 3', route: [], endVertex: rr.anyVertex() }, 0, 0),
+    new Freight({ name: 'Freight 4', route: [], endVertex: rr.anyVertex() }, 0, 0),
+    new Freight({ name: 'Freight 5', route: [], endVertex: rr.anyVertex() }, 0, 0),
+    new Freight({ name: 'Freight 6', route: [], endVertex: rr.anyVertex() }, 0, 0),
+    new Freight({ name: 'Freight 7', route: [], endVertex: rr.anyVertex() }, 0, 0),
+    new Freight({ name: 'Freight 8', route: [], endVertex: rr.anyVertex() }, 0, 0),
+    new Passanger({ name: 'Passanger 1', route: [], endVertex: rr.anyVertex() }, 0, 0),
+    new Passanger({ name: 'Passanger 2', route: [], endVertex: rr.anyVertex() }, 0, 0),
+    new Passanger({ name: 'Passanger 3', route: [], endVertex: rr.anyVertex() }, 0, 0),
+    new Passanger({ name: 'Passanger 4', route: [], endVertex: rr.anyVertex() }, 0, 0),
+    new Passanger({ name: 'Passanger 5', route: [], endVertex: rr.anyVertex() }, 0, 0),
+    new Passanger({ name: 'Passanger 6', route: [], endVertex: rr.anyVertex() }, 0, 0),
+    new Passanger({ name: 'Passanger 7', route: [], endVertex: rr.anyVertex() }, 0, 0),
+    new Passanger({ name: 'Passanger 8', route: [], endVertex: rr.anyVertex() }, 0, 0),
+  ]
+  for (const train of trains) {
+    const [start, end] = rr.randomStartEnd()
     let route: Path[] | null = []
-    const make = () => {
-      route = generateRoute(start, end, rr, stations)
-    }
+    const make = () => (route = generateRoute(start, end, rr, stations))
     make()
     if (route === null || route.length === 0) make()
-    let shape: any
-    let train: any
-    shape = new Konva.RegularPolygon({
-      x: stations[start.name].station.x(),
-      y: stations[start.name].station.y(),
-      sides: 3,
-      radius: trainRadius,
-      fill: randColor(),
-      stroke: 'black',
-      strokeWidth: 1,
-    })
-    train = new Freight({ name, route, endVertex: end }, shape)
-    if (name == 'Fatty') {
-      shape = new Konva.Circle({
-        x: stations[start.name].station.x(),
-        y: stations[start.name].station.y(),
-        radius: 3,
-        fill: randColor(),
-        stroke: 'black',
-        strokeWidth: 1,
-      })
-      train = new Passanger({ name, route, endVertex: end }, shape)
-    }
-    trainLayer.add(shape)
-    trains.push(train)
+    train.route = route
+    train.pathLength = route.length
+    train.endVertex = end
+    train.shape.position({ x: stations[start.name].station.x(), y: stations[start.name].station.y() })
+    trainLayer.add(train.shape)
   }
   stage.add(trainLayer)
 
-  let memoEnd = memoizedPathEnd()
   let anim = new Konva.Animation((frame: any) => {
     for (let train of trains) {
-      const { x: x2, y: y2 } = memoEnd(train.currentRoute)
-      const { currentRoute } = train
-      const { x, y } = currentRoute.getPointAtLength(train.velocity * train.currentPosition)
-      if (round(x) === x2 && round(y) === y2) {
-        train.nextStation()
-        if (train.hasArrived) {
-          console.log('the end!')
-          const end = rr.randomEnd(train.endVertex)
-          console.log(`${train.name} rolls again ${train.endVertex.name} ⇄ ${end.name}`)
-          const generated = generateRoute(train.endVertex, end, rr, stations)!
-          train.updateRoute(generated, end)
-        }
+      if (train.hasArrived) {
+        const end = rr.randomEnd(train.endVertex)
+        info({ text: `${train.name} rolls again from ${train.endVertex.name} to ${end.name}`, bg: 'lightblue' })
+        const generated = generateRoute(train.endVertex, end, rr, stations)!
+        console.log(`${train.name} got new route ${generated.map(g => g.name()).join('-')}`)
+        train.updateRoute(generated, end)
       }
+
+      const { currentRoute } = train
+      if (currentRoute === undefined) {
+        throw `${train.name} COULDN'T GET PATH!`
+      }
+      const { x: x2, y: y2 } = currentRoute.getPointAtLength(currentRoute.getLength())
+      const { x, y } = currentRoute.getPointAtLength(train.velocity * train.currentPosition)
+      if (round(x) === round(x2) && round(y) === round(y2)) train.nextStation()
       train.shape.position({ x: x, y: y })
       train.incrementPos()
     }

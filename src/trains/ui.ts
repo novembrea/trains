@@ -6,25 +6,28 @@ import { Config } from './types'
 import { byid } from './utils'
 
 const uiRefreshBtn = byid('refresh')!
-
-const uiPlayBtn = byid('play')!
+let uiPlayBtn = byid('play')!
 
 const uiStationSlider = byid('stations-slider')!
 const uiStationCounter = byid('stations-counter')!
 const uiSnapCheckbox = byid('snap-checkbox')!
 
+let isPlaying = false
+let animation: Animation
+
+const playHandler = () => {
+  if (!isPlaying) {
+    uiPlayBtn.innerText = 'STOP'
+    isPlaying = true
+    return animation.start()
+  }
+  uiPlayBtn.innerText = 'PLAY'
+  isPlaying = false
+  return animation.stop()
+}
 export function bindPlayBtn(anim: Animation) {
-  let isPlaying = false
-  uiPlayBtn.addEventListener('click', () => {
-    if (!isPlaying) {
-      uiPlayBtn.innerText = 'STOP'
-      isPlaying = true
-      return anim.start()
-    }
-    uiPlayBtn.innerText = 'PLAY'
-    isPlaying = false
-    return anim.stop()
-  })
+  animation = anim
+  uiPlayBtn.addEventListener('click', playHandler)
 }
 
 export default function initUI() {
@@ -35,6 +38,10 @@ export default function initUI() {
   }
 
   uiRefreshBtn.addEventListener('click', () => {
+    animation.stop()
+    uiPlayBtn.removeEventListener('click', playHandler)
+    uiPlayBtn.innerText = 'PLAY'
+    isPlaying = false
     render(config)
   })
 
@@ -61,4 +68,6 @@ export default function initUI() {
     const { checked } = e.target as HTMLInputElement
     Object.assign(config, { shouldSnapToGrid: checked })
   })
+
+  render(config)
 }

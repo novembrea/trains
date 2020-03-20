@@ -81,7 +81,6 @@ export const generateRoute = (start: Vertex, end: Vertex, g: RailRoadGraph, stat
     return null
   }
 
-  console.log(`fastest route: ${p.join('-')}`)
   return [
     stations[start.name].edges.find(edge => edge.name() === `${start.name}-${p[0]}`)!,
     ...p

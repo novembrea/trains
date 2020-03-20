@@ -10,7 +10,7 @@ export const abortPlacementAttempts = 200
 export const abortGraphBuildAttempts = 200
 
 // How big station circle will be drawn on the canvas.
-export const stationRadius = 25
+export const stationRadius = 20
 
 // Defines closest possible placement of station next to other station.
 export const vertexExclusionRadius = stationRadius * 3
@@ -23,7 +23,7 @@ export const yPlacementBound = cavnasHeight - stationRadius
 // True will produce a more grid-like layout.
 export const shouldSnapToGrid = false
 
-export const trainRadius = 8
+export const trainRadius = 5
 
 // Station names
 export const names = [
@@ -53,6 +53,27 @@ export const names = [
   'Yankee',
   'Zebra',
   'Zero',
+  // ---
+  'Able',
+  'Baker',
+  'Dog',
+  'Easy',
+  'Fox',
+  'George',
+  'How',
+  'Item',
+  'Jig',
+  'King',
+  'Love',
+  'Nan',
+  'Oboe',
+  'Peter',
+  'Queen',
+  'Roger',
+  'Sugar',
+  'Tare',
+  'Uncle',
+  'William',
 ]
 
 export const defaultConfig: Config = {

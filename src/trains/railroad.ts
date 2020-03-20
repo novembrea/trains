@@ -1,7 +1,9 @@
 import sample from 'lodash/sample'
+import sampleSize from 'lodash/sampleSize'
+import uniqBy from 'lodash/uniqBy'
 
 import { Vertex } from './types'
-import { anyButGiven, info, printVertex } from './utils'
+import { info, printVertex } from './utils'
 
 class RailRoadGraph {
   vertices: string[]
@@ -53,19 +55,22 @@ class RailRoadGraph {
     return Object.keys(visited).length === this.vertices.length
   }
 
-  randomStartEnd(): { start: Vertex; end: Vertex } {
-    const a = sample(this.vertices)!
-    const b = anyButGiven([a], this.vertices)
-    return { start: sample(this.adjList.get(a))!, end: sample(this.adjList.get(b))! }
+  // TODO make randomizers  more efficient.
+  randomStartEnd(): Vertex[] {
+    const pool: Vertex[] = []
+    this.adjList.forEach((vertices, k) => pool.push(...vertices))
+    return sampleSize(uniqBy(pool, 'name'), 2)!
   }
 
   randomEnd(start: Vertex): Vertex {
     const pool: Vertex[] = []
-    // TODO make it more efficient.
-    this.adjList.forEach((vertices, k) => {
-      pool.push(...vertices.filter(v => v.name !== start.name))
-    })
-    return sample(pool)!
+    this.adjList.forEach((vertices, k) => pool.push(...vertices.filter(v => v.name !== start.name)))
+    return sample(uniqBy(pool, 'name'))!
+  }
+
+  anyVertex(): Vertex {
+    const a = sample(this.vertices)!
+    return sample(this.adjList.get(a))!
   }
 
   print() {
