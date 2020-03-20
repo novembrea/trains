@@ -59,10 +59,13 @@ class RailRoadGraph {
     return { start: sample(this.adjList.get(a))!, end: sample(this.adjList.get(b))! }
   }
 
-  randomVertexAtDistance(a: Vertex, distance: number): { vertex: Vertex } {
-    const rand = anyButGiven([a.name], this.vertices)
-    const rn = sample(this.adjList.get(rand))!
-    return { vertex: rn }
+  randomEnd(start: Vertex): Vertex {
+    const pool: Vertex[] = []
+    // TODO make it more efficient.
+    this.adjList.forEach((vertices, k) => {
+      pool.push(...vertices.filter(v => v.name !== start.name))
+    })
+    return sample(pool)!
   }
 
   print() {

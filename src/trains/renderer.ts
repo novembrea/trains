@@ -284,7 +284,7 @@ function render(c?: Config): void {
         train.nextStation()
         if (train.hasArrived) {
           console.log('the end!')
-          const { vertex: end } = rr.randomVertexAtDistance(train.endVertex, 5)
+          const end = rr.randomEnd(train.endVertex)
           console.log(`${train.name} rolls again ${train.endVertex.name} ⇄ ${end.name}`)
           const generated = generateRoute(train.endVertex, end, rr, stations)!
           train.updateRoute(generated, end)
