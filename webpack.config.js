@@ -16,7 +16,7 @@ module.exports = {
   },
   output: {
     path: outPath,
-    publicPath: '/',
+    publicPath: isProduction ? '/trains/' : '/',
     filename: isProduction ? '[contenthash].js' : '[name].js',
   },
   target: 'web',
