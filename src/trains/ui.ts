@@ -32,6 +32,7 @@ const uiTrainInfoTmpl = (t: Train) => `
 </li>
 `
 
+const uiConnectionDensity = byid('connection-density')!
 const uiStationsPassed = byid('stations-passed')!
 const uiRoutesCompleted = byid('routes-completed')!
 const uiPlayBtn = byid('play')!
@@ -53,7 +54,6 @@ export function insertTrainSchedule(t: Train) {
   if (!entry) {
     return uiScheduleBox.insertAdjacentHTML('afterbegin', uiTrainInfoTmpl(t))
   }
-  console.log(entry)
   uiRoutesCompleted.innerText = (Number(uiRoutesCompleted.innerText) + 1).toString()
   uiScheduleBox.querySelector(`#${t.name}`)!.innerHTML = ''
   return uiScheduleBox.querySelector(`#${t.name}`)!.insertAdjacentHTML('afterbegin', uiTrainInfoTmpl(t))
@@ -88,12 +88,27 @@ export function bindPlayBtn(anim: Animation) {
   uiPlayBtn.addEventListener('click', playHandler)
 }
 
+const lsget = (x: string) => localStorage.getItem(x)
+const initialConfig = () => {
+  let stationsCount = names.length
+  let trainsCount = trainNames.length
+  let connectionDensity = 2
+  let shouldSnapToGrid = false
+
+  if (lsget('station_counter') !== null) stationsCount = +lsget('station_counter')!
+  if (lsget('connection_density') !== null) connectionDensity = +lsget('connection_density')!
+  if (lsget('trains_counter') !== null) trainsCount = +lsget('trains_counter')!
+
+  return {
+    stationsCount,
+    trainsCount,
+    connectionDensity,
+    shouldSnapToGrid,
+  }
+}
 export default function initUI() {
   let config: Config = {
-    shouldSnapToGrid: false,
-    stationsCount: Number(localStorage.getItem('station_counter')) ?? names.length,
-    connectionDensity: 5,
-    trainsCount: Number(localStorage.getItem('trains_counter')) ?? trainNames.length,
+    ...initialConfig(),
     playBtn: uiPlayBtn,
   }
 
@@ -106,6 +121,13 @@ export default function initUI() {
     uiRoutesCompleted.innerText = '0'
     uiScheduleBox.innerHTML = ''
     render(config)
+  })
+  ;(uiConnectionDensity as HTMLSelectElement).value = config.connectionDensity.toString()
+  uiConnectionDensity.addEventListener('change', e => {
+    const { value } = e.target as HTMLInputElement
+    // uiStationCounter.innerText = value
+    localStorage.setItem('connection_density', value)
+    Object.assign(config, { connectionDensity: +value })
   })
 
   // Stations slider.

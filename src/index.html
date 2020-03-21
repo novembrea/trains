@@ -111,6 +111,16 @@
               Refresh
             </button>
           </div>
+          <div class="box" style="min-width: 100; flex-direction: column; align-items: flex-start; text-align: left;">
+            <label for="connection-density" style="padding-bottom: 5px;">Connection density</label>
+            <select style="min-width: 100%"" id="connection-density">
+              <option value="2"> 2-2 edges per station</option>
+              <option value="3"> 2-3 edges per station</option>
+              <option value="4"> 2-4 edges per station</option>
+              <option value="6"> 2-6 edges per station</option>
+              <option value="8"> 2-8 edges per station</option>
+            </select>
+          </div>
           <div class="box" style="min-width: 250;">
             <p style="margin-right: 10px;">trains:</p>
             <input id="trains-slider" class="slider" type="range" min="2" max="2" value="2" />
