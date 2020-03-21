@@ -99,7 +99,7 @@
       <section>
         <h2>Schedule</h2>
         <h4 style="margin: 0;">Stations passed: &nbsp; <span id="stations-passed">0</span></h4>
-        <h4 style="margin: 5 0 10 0;">Routes completed:&nbsp; <span id="routes-completed">0</span></h4>
+        <h4 style="margin: 5 0 20 0;">Routes completed:&nbsp; <span id="routes-completed">0</span></h4>
         <ul id="schedule" style="list-style: none; padding: 0 25px 0 0 ; margin: 0; max-height: 800px; overflow-y: scroll;"></ul>
       </section>
       <section>
@@ -116,7 +116,7 @@
           </div>
           <div class="box" style="min-width: 100; flex-direction: column; align-items: flex-start; text-align: left;">
             <label for="speed-modifier" style="padding-bottom: 5px;">Speed modifier</label>
-            <select style="min-height:25px; min-width: 100%"" id="speed-modifier">
+            <select style="min-width: 100%"" id="speed-modifier">
               <option value="1">1x</option>
               <option value="2">2x</option>
               <option value="3">3x</option>
@@ -126,7 +126,7 @@
           </div>
           <div class="box" style="min-width: 100; flex-direction: column; align-items: flex-start; text-align: left;">
             <label for="connection-density" style="padding-bottom: 5px;">Connection density</label>
-            <select style="min-height:25px; min-width: 100%"" id="connection-density">
+            <select style="min-width: 100%"" id="connection-density">
               <option value="2">2-2 edges per station</option>
               <option value="3">2-3 edges per station</option>
               <option value="4">2-4 edges per station</option>
@@ -134,26 +134,22 @@
               <option value="8">2-8 edges per station</option>
             </select>
           </div>
-          <div class="box" style="min-width: 250px; flex-direction: column; align-items: flex-start;">
-            <p style="margin: 0 0 5px 0;">Trains count:</p>
-            <div style="display: flex; align-items: center; width: 100%; min-height:25px;">
-              <input id="trains-slider" class="slider" type="range" min="1" max="1" value="1" />
-              <h3 id="trains-slider-counter" style="padding-left: 10; margin: 0; min-width: 45px;">2</h3>
-            </div>
+          <div class="box" style="min-width: 250;">
+            <p style="margin-right: 10px;">trains:</p>
+            <input id="trains-slider" class="slider" type="range" min="1" max="1" value="1" />
+            <h3 id="trains-slider-counter" style="padding-left: 10;">2</h3>
           </div>
           </div>
-          <div class="box" style="min-width: 250px; flex-direction: column; align-items: flex-start; ">
-            <p style="margin: 0 0 5px 0;">stations:</p>
-            <div style="display: flex; align-items: center; width: 100%; min-height:25px;">
-              <input id="stations-slider" class="slider" type="range" min="2" max="2" value="2" />
-              <h3 id="stations-slider-counter" style="padding-left: 10; margin: 0; min-width: 45px;">2</h3>
-            </div>
+          <div class="box" style="min-width: 250;">
+            <p style="margin-right: 10px;">stations:</p>
+            <input id="stations-slider" class="slider" type="range" min="2" max="2" value="2" />
+            <h3 id="stations-slider-counter" style="padding-left: 10;">2</h3>
           </div>
-          <div class="box" style="flex-direction: column; align-items: flex-start;">
-            <label for="snap-checkbox" style="min-height:25px; cursor: pointer;">
+          <div class="box">
+            <label for="snap-checkbox">
               Snap to grid
+              <input id="snap-checkbox" class="checkbox" type="checkbox" />
             </label>
-            <input id="snap-checkbox" style="cursor: pointer;" type="checkbox" />
           </div>
         </header>
 
@@ -162,11 +158,11 @@
           style="padding-top: 10px; display: flex; flex-direction: column; align-items: flex-end; justify-content: center; align-content: center; min-height: 80%;"
         ></div>
       </section>
+      <footer>
+        <p>
+          <a href='https://github.com/nvma/trains' style="color: white; font-weight: bold;">Source on GitHub</a>
+        </p>
+      </footer>
     </main>
-    <footer>
-      <p>
-        <a href='https://github.com/nvma/trains' style="color: white; font-weight: bold;">Source on GitHub</a>
-      </p>
-    </footer>
   </body>
 </html>
