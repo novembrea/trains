@@ -95,7 +95,7 @@
       </div>
       <div class="box" style="min-width: 300;">
         <input id="stations-slider" class="slider" type="range" min="2" max="2" value="2" />
-        <h3 id="stations-counter" style="padding-left: 10;">0</h3>
+        <h3 id="stations-slider-counter" style="padding-left: 10;">0</h3>
       </div>
       <div class="box">
         <label for="snap-checkbox">
@@ -107,7 +107,9 @@
 
     <main style="text-align: left; display: flex; justify-content: space-between; align-items: flex-start;">
       <section style="padding-right: 25px;">
-        <h3>Schedule</h3>
+        <h2>Schedule</h2>
+        <h4 style="margin: 0;">Stations passed: &nbsp; <span id="stations-passed">0</span></h4>
+        <h4 style="margin: 5 0 20 0;">Routes completed:&nbsp; <span id="routes-completed">0</span></h4>
         <ul id="schedule" style="list-style: none; padding: 0; margin: 0;"></ul>
       </section>
       <section>

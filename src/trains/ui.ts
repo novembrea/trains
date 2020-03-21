@@ -32,11 +32,13 @@ const uiTrainInfoTmpl = (t: Train) => `
 </li>
 `
 
+const uiStationsPassed = byid('stations-passed')!
+const uiRoutesCompleted = byid('routes-completed')!
 const uiPlayBtn = byid('play')!
 const uiRefreshBtn = byid('refresh')!
 const uiScheduleBox = byid('schedule')!
 const uiStationSlider = byid('stations-slider')!
-const uiStationCounter = byid('stations-counter')!
+const uiStationCounter = byid('stations-slider-counter')!
 const uiSnapCheckbox = byid('snap-checkbox')!
 
 let isPlaying = false
@@ -47,6 +49,7 @@ export function insertTrainSchedule(t: Train) {
   if (!entry) {
     return uiScheduleBox.insertAdjacentHTML('afterbegin', uiTrainInfoTmpl(t))
   }
+  uiRoutesCompleted.innerText = (Number(uiRoutesCompleted.innerText) + 1).toString()
   uiScheduleBox.querySelector(`#${t.name}`)!.innerHTML = ''
   return uiScheduleBox.querySelector(`#${t.name}`)!.insertAdjacentHTML('afterbegin', uiTrainInfoTmpl(t))
 }
@@ -61,6 +64,7 @@ export function updateTrainSchedule(t: Train) {
   const nextEl = byid(`${tid}-${next}`)
   if (prevEl) prevEl.style.color = ''
   if (nextEl) nextEl.style.color = 'tomato'
+  uiStationsPassed.innerText = (Number(uiStationsPassed.innerText) + 1).toString()
 }
 
 const playHandler = () => {
