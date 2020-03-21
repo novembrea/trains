@@ -16,9 +16,9 @@ import {
   yPlacementBound,
 } from './constants'
 import RailRoadGraph from './railroad'
-import { Freight, Passanger } from './train'
+import { Bullet, Freight, Passanger } from './train'
 import { Config, Distance, Stations } from './types'
-import { bindPlayBtn } from './ui'
+import { bindPlayBtn, insertTrainSchedule, updateTrainSchedule } from './ui'
 import {
   canFitStation,
   doesLineIntersectCircle,
@@ -234,22 +234,26 @@ function render(c?: Config): void {
 
   const trainLayer = new Konva.Layer()
   const trains: (Freight | Passanger)[] = [
-    new Freight({ name: 'Freight 1', route: [], endVertex: rr.anyVertex() }, 0, 0),
-    new Freight({ name: 'Freight 2', route: [], endVertex: rr.anyVertex() }, 0, 0),
-    new Freight({ name: 'Freight 3', route: [], endVertex: rr.anyVertex() }, 0, 0),
-    new Freight({ name: 'Freight 4', route: [], endVertex: rr.anyVertex() }, 0, 0),
-    new Freight({ name: 'Freight 5', route: [], endVertex: rr.anyVertex() }, 0, 0),
-    new Freight({ name: 'Freight 6', route: [], endVertex: rr.anyVertex() }, 0, 0),
-    new Freight({ name: 'Freight 7', route: [], endVertex: rr.anyVertex() }, 0, 0),
-    new Freight({ name: 'Freight 8', route: [], endVertex: rr.anyVertex() }, 0, 0),
-    new Passanger({ name: 'Passanger 1', route: [], endVertex: rr.anyVertex() }, 0, 0),
-    new Passanger({ name: 'Passanger 2', route: [], endVertex: rr.anyVertex() }, 0, 0),
-    new Passanger({ name: 'Passanger 3', route: [], endVertex: rr.anyVertex() }, 0, 0),
-    new Passanger({ name: 'Passanger 4', route: [], endVertex: rr.anyVertex() }, 0, 0),
-    new Passanger({ name: 'Passanger 5', route: [], endVertex: rr.anyVertex() }, 0, 0),
-    new Passanger({ name: 'Passanger 6', route: [], endVertex: rr.anyVertex() }, 0, 0),
-    new Passanger({ name: 'Passanger 7', route: [], endVertex: rr.anyVertex() }, 0, 0),
-    new Passanger({ name: 'Passanger 8', route: [], endVertex: rr.anyVertex() }, 0, 0),
+    new Freight({ name: 'Tireless', route: [], endVertex: rr.anyVertex() }, 0, 0),
+    new Freight({ name: 'Industrious', route: [], endVertex: rr.anyVertex() }, 0, 0),
+    new Freight({ name: 'Mammoth', route: [], endVertex: rr.anyVertex() }, 0, 0),
+    new Freight({ name: 'Diligent', route: [], endVertex: rr.anyVertex() }, 0, 0),
+    new Freight({ name: 'Eager', route: [], endVertex: rr.anyVertex() }, 0, 0),
+    new Freight({ name: 'Ambitious', route: [], endVertex: rr.anyVertex() }, 0, 0),
+    // new Freight({ name: 'Chubby', route: [], endVertex: rr.anyVertex() }, 0, 0),
+    // new Freight({ name: 'Grumpy', route: [], endVertex: rr.anyVertex() }, 0, 0),
+    new Passanger({ name: 'Brief', route: [], endVertex: rr.anyVertex() }, 0, 0),
+    new Passanger({ name: 'Loose', route: [], endVertex: rr.anyVertex() }, 0, 0),
+    new Passanger({ name: 'Melodic', route: [], endVertex: rr.anyVertex() }, 0, 0),
+    new Passanger({ name: 'RedFox', route: [], endVertex: rr.anyVertex() }, 0, 0),
+    new Passanger({ name: 'Nimble', route: [], endVertex: rr.anyVertex() }, 0, 0),
+    // new Passanger({ name: 'Comfy', route: [], endVertex: rr.anyVertex() }, 0, 0),
+    // new Passanger({ name: 'Bright', route: [], endVertex: rr.anyVertex() }, 0, 0),
+    // new Passanger({ name: 'Animate', route: [], endVertex: rr.anyVertex() }, 0, 0),
+    new Bullet({ name: 'Agile', route: [], endVertex: rr.anyVertex() }, 0, 0),
+    new Bullet({ name: 'Swift', route: [], endVertex: rr.anyVertex() }, 0, 0),
+    // new Bullet({ name: 'Rapid', route: [], endVertex: rr.anyVertex() }, 0, 0),
+    // new Bullet({ name: 'Whew', route: [], endVertex: rr.anyVertex() }, 0, 0),
   ]
   for (const train of trains) {
     const [start, end] = rr.randomStartEnd()
@@ -262,6 +266,7 @@ function render(c?: Config): void {
     train.endVertex = end
     train.shape.position({ x: stations[start.name].station.x(), y: stations[start.name].station.y() })
     trainLayer.add(train.shape)
+    insertTrainSchedule(train)
   }
   stage.add(trainLayer)
 
@@ -273,6 +278,7 @@ function render(c?: Config): void {
         const generated = generateRoute(train.endVertex, end, rr, stations)!
         console.log(`${train.name} got new route ${generated.map(g => g.name()).join('-')}`)
         train.updateRoute(generated, end)
+        insertTrainSchedule(train)
       }
 
       const { currentRoute } = train
@@ -281,7 +287,10 @@ function render(c?: Config): void {
       }
       const { x: x2, y: y2 } = currentRoute.getPointAtLength(currentRoute.getLength())
       const { x, y } = currentRoute.getPointAtLength(train.velocity * train.currentPosition)
-      if (round(x) === round(x2) && round(y) === round(y2)) train.nextStation()
+      if (round(x) === round(x2) && round(y) === round(y2)) {
+        updateTrainSchedule(train)
+        train.nextStation()
+      }
       train.shape.position({ x: x, y: y })
       train.incrementPos()
     }

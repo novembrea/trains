@@ -2,18 +2,66 @@ import { Animation } from 'konva/types/Animation'
 
 import { names } from './constants'
 import render from './renderer'
+import { Train } from './train'
 import { Config } from './types'
 import { byid } from './utils'
 
-const uiRefreshBtn = byid('refresh')!
-let uiPlayBtn = byid('play')!
+const toggleState: { [key: string]: boolean } = {}
 
+const uiTrainInfoTmpl = (t: Train) => `
+<li id="${t.name}">
+  <div style="margin-bottom: 10px;">
+    <div style="display:flex;">
+      <p style="margin:0 0 5px 0; font-size: 14; font-weight: bold;">
+        loco. <span style="color:tomato;">${t.name}</span>, class ${t.trainType}
+      </p>
+    </div>
+    <small ${toggleState[`${t.name}-route`] && 'hidden'} id="${t.name}-route" style="font-size: 12">
+      ${t.route
+        .map(
+          (r, i) =>
+            `<span style="${i === 0 && 'color:tomato;'}" id="${t.name.toLowerCase()}-${r
+              .name()
+              .toLowerCase()
+              .split('-')
+              .shift()}">${r.name()}</span>`,
+        )
+        .join(' ⟶ ')}
+    </small>
+  </div>
+</li>
+`
+
+const uiPlayBtn = byid('play')!
+const uiRefreshBtn = byid('refresh')!
+const uiScheduleBox = byid('schedule')!
 const uiStationSlider = byid('stations-slider')!
 const uiStationCounter = byid('stations-counter')!
 const uiSnapCheckbox = byid('snap-checkbox')!
 
 let isPlaying = false
 let animation: Animation
+
+export function insertTrainSchedule(t: Train) {
+  const entry = byid(t.name)
+  if (!entry) {
+    return uiScheduleBox.insertAdjacentHTML('afterbegin', uiTrainInfoTmpl(t))
+  }
+  uiScheduleBox.querySelector(`#${t.name}`)!.innerHTML = ''
+  return uiScheduleBox.querySelector(`#${t.name}`)!.insertAdjacentHTML('afterbegin', uiTrainInfoTmpl(t))
+}
+
+export function updateTrainSchedule(t: Train) {
+  const [prev, next] = t.route[t.currentRouteIndex]
+    .name()
+    .split('-')
+    .map(w => w.toLowerCase())
+  const tid = t.name.toLowerCase()
+  const prevEl = byid(`${tid}-${prev}`)
+  const nextEl = byid(`${tid}-${next}`)
+  if (prevEl) prevEl.style.color = ''
+  if (nextEl) nextEl.style.color = 'tomato'
+}
 
 const playHandler = () => {
   if (!isPlaying) {
@@ -25,6 +73,7 @@ const playHandler = () => {
   isPlaying = false
   return animation.stop()
 }
+
 export function bindPlayBtn(anim: Animation) {
   animation = anim
   uiPlayBtn.addEventListener('click', playHandler)
@@ -42,6 +91,8 @@ export default function initUI() {
     uiPlayBtn.removeEventListener('click', playHandler)
     uiPlayBtn.innerText = 'PLAY'
     isPlaying = false
+
+    uiScheduleBox.innerHTML = ''
     render(config)
   })
 

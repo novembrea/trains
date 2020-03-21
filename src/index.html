@@ -30,7 +30,7 @@
         align-items: center;
         display: flex;
       }
-      button {
+      .h-button {
         font-family: inherit;
         font-size: 1.25em;
         font-weight: 400;
@@ -40,6 +40,17 @@
         color: white;
         padding: 0.75rem 1.5rem;
         border: none;
+      }
+      .toggle-button {
+        border: 2px solid white;
+        background: transparent;
+        color: white;
+        padding: 0;
+        margin: 0 5px 0 0;
+        line-height: 0;
+        height: 15px;
+        width: 15px;
+        cursor: pointer;
       }
       .slider {
         -webkit-appearance: none;
@@ -71,40 +82,40 @@
     </style>
   </head>
   <body style="padding-top: 20px; text-align: center;">
-    <main style="display: flex; justify-content: space-between;">
-      <div>
-        <div>
-          Schedule
-        </div>
+    <header id="ui" style="display: flex; justify-content: flex-end;">
+      <div class="box">
+        <button class="h-button" id="play">
+          PLAY
+        </button>
       </div>
-      <div>
-        <header id="ui">
-          <div class="box">
-            <button id="play">
-              PLAY
-            </button>
-          </div>
-          <div class="box">
-            <button id="refresh">
-              Refresh
-            </button>
-          </div>
-          <div class="box" style="min-width: 300;">
-            <input id="stations-slider" class="slider" type="range" min="2" max="2" value="2" />
-            <h3 id="stations-counter" style="padding-left: 10;">0</h3>
-          </div>
-          <div class="box">
-            <label for="snap-checkbox">
-              Snap to grid
-              <input id="snap-checkbox" class="checkbox" type="checkbox" />
-            </label>
-          </div>
-        </header>
+      <div class="box">
+        <button class="h-button" id="refresh">
+          Refresh
+        </button>
+      </div>
+      <div class="box" style="min-width: 300;">
+        <input id="stations-slider" class="slider" type="range" min="2" max="2" value="2" />
+        <h3 id="stations-counter" style="padding-left: 10;">0</h3>
+      </div>
+      <div class="box">
+        <label for="snap-checkbox">
+          Snap to grid
+          <input id="snap-checkbox" class="checkbox" type="checkbox" />
+        </label>
+      </div>
+    </header>
+
+    <main style="text-align: left; display: flex; justify-content: space-between; align-items: flex-start;">
+      <section style="padding-right: 25px;">
+        <h3>Schedule</h3>
+        <ul id="schedule" style="list-style: none; padding: 0; margin: 0;"></ul>
+      </section>
+      <section>
         <div
           id="main"
           style="padding-top: 10px; display: flex; flex-direction: column; align-items: flex-end; justify-content: center; align-content: center; min-height: 80%;"
         ></div>
-      </div>
+      </section>
     </main>
   </body>
 </html>

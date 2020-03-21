@@ -21,9 +21,11 @@ export class Train {
   name: string
   pathLength: number
   route: Path[]
+  trainType: string
 
-  constructor({ route, endVertex, name }: TrainProps) {
+  constructor({ route, endVertex, name }: TrainProps, trainType: string) {
     this.name = name
+    this.trainType = trainType
     this.route = route
     this.endVertex = endVertex
     this.pathLength = route.length
@@ -52,16 +54,6 @@ export class Train {
   }
 
   public nextStation() {
-    // info({
-    //   text: `from: ${this.currentRoute
-    //     .name()
-    //     .split('-')
-    //     .pop()}, to: ${this.route[this.currentRouteIndex + 1]
-    //     ?.name()
-    //     .split('-')
-    //     .pop() ?? 'end'}`,
-    //   bg: 'gold',
-    // })
     this.currentPosition = 0
     this.currentRouteIndex++
     let prevPos = this.currentPosition
@@ -75,9 +67,8 @@ export class Train {
 export class Freight extends Train {
   shape: RegularPolygon
   velocity: number
-
   constructor({ name, route, endVertex }: TrainProps, x1: number, y1: number) {
-    super({ name, route, endVertex })
+    super({ name, route, endVertex }, 'freight')
     this.shape = new Konva.RegularPolygon({
       x: x1,
       y: y1,
@@ -87,7 +78,7 @@ export class Freight extends Train {
       stroke: 'black',
       strokeWidth: 1,
     })
-    this.velocity = 0.2
+    this.velocity = 0.3
   }
 }
 
@@ -96,7 +87,8 @@ export class Passanger extends Train {
   velocity: number
 
   constructor({ name, route, endVertex }: TrainProps, x1: number, y1: number) {
-    super({ name, route, endVertex })
+    super({ name, route, endVertex }, 'passanger')
+    this.trainType = 'passanger'
     this.shape = this.shape = new Konva.Circle({
       x: x1,
       y: y1,
@@ -114,10 +106,19 @@ export class Bullet extends Train {
   shape: RegularPolygon
   velocity: number
 
-  constructor({ name, route, endVertex }: TrainProps, shape: RegularPolygon) {
-    super({ name, route, endVertex })
-    this.shape = shape
+  constructor({ name, route, endVertex }: TrainProps, x1: number, y1: number) {
+    super({ name, route, endVertex }, 'bullet')
+    this.trainType = 'bullet'
+    this.shape = this.shape = new Konva.RegularPolygon({
+      x: x1,
+      y: y1,
+      sides: 5,
+      radius: trainRadius - 2,
+      fill: randColor(),
+      stroke: 'black',
+      strokeWidth: 1,
+    })
 
-    this.velocity = 0.2
+    this.velocity = 0.8
   }
 }
