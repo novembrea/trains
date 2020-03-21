@@ -17,7 +17,7 @@ module.exports = {
   output: {
     path: outPath,
     publicPath: '/',
-    filename: isProduction ? '[contenthash].js' : '[name].js',
+    filename: isProduction ? 'assets/[contenthash].js' : '[name].js',
   },
   target: 'web',
   resolve: {
