@@ -33,7 +33,7 @@ class RailRoadGraph {
   }
 
   disconnectEdges(a: string, b: string) {
-    info({ text: `disconnecting colliding edge [${a} ⇄ ${b}]` })
+    info({ text: `disconnecting colliding edge [${a} ⇄ ${b}]`, bg: 'lightgray' })
     this.adjList.set(
       a,
       this.adjList.get(a)!.filter(v => v.name !== b),

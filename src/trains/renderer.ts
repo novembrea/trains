@@ -101,7 +101,7 @@ function computeDistances(name: string) {
     const distance = pointDistance(target.x(), value.x(), target.y(), value.y())
     distances[name].push({ station: key, distance })
   }
-  distances[name] = distances[name].sort((a, b) => a.distance - b.distance).slice(0, randBetween(1, 3))
+  distances[name] = distances[name].sort((a, b) => a.distance - b.distance).slice(0, randBetween(1, 4))
 }
 
 // addEdges assigns edges to the graph based on computed distances.
@@ -274,9 +274,7 @@ function render(c?: Config): void {
     for (let train of trains) {
       if (train.hasArrived) {
         const end = rr.randomEnd(train.endVertex)
-        info({ text: `${train.name} rolls again from ${train.endVertex.name} to ${end.name}`, bg: 'lightblue' })
         const generated = generateRoute(train.endVertex, end, rr, stations)!
-        console.log(`${train.name} got new route ${generated.map(g => g.name()).join('-')}`)
         train.updateRoute(generated, end)
         insertTrainSchedule(train)
       }

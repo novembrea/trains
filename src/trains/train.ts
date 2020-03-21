@@ -5,7 +5,7 @@ import { RegularPolygon } from 'konva/types/shapes/RegularPolygon'
 
 import { trainRadius } from './constants'
 import { Vertex } from './types'
-import { info, randColor } from './utils'
+import { randColor } from './utils'
 
 interface TrainProps {
   name: string
@@ -39,8 +39,6 @@ export class Train {
   }
 
   public updateRoute(route: Path[], endVertex: Vertex) {
-    info({ text: `new route for ${this.name}`, bg: 'lightgray' })
-    info({ text: route.map(r => r.name()).join('-'), bg: 'lightgray' })
     this.route = route
     this.endVertex = endVertex
     this.pathLength = route.length
