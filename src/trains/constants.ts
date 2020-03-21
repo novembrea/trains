@@ -2,28 +2,26 @@
 export const canvasWidth = 1400
 export const cavnasHeight = 800
 
-// Arbitrary number of placement attempts per one vertex.
-// Algorithm will abort placement and throw an error on attempts overflow.
+// Arbitrary number of vertex placement/graph build attempts.
+// Algorithm will abort placement/build and throw an error on attempts overflow.
 export const abortPlacementAttempts = 200
 export const abortGraphBuildAttempts = 200
 
 // How big station circle will be drawn on the canvas.
 export const stationRadius = 20
 
-// Defines closest possible placement of station next to other station.
+// Defines closest possible placement of station next to the other station.
 export const vertexExclusionRadius = stationRadius * 3
 
 // Placement dimensions: canvas dimension padded by station radius.
 export const xPlacementBound = canvasWidth - stationRadius
 export const yPlacementBound = cavnasHeight - stationRadius
 
-// Vertices will be snapped using modulo of vertexExclusionRadius applied to x and y coordinates.
-// True will produce a more grid-like layout.
-export const shouldSnapToGrid = false
-
+// Size of train shape.
 export const trainRadius = 5
 
-// Station names
+// Station names.
+// Radiotelephony spelling alphabets in different languages/eras.
 export const names = [
   'Alpha',
   'Bravo',
@@ -50,8 +48,7 @@ export const names = [
   'XRay',
   'Yankee',
   'Zebra',
-  'Zero',
-  // ---
+
   'Able',
   'Baker',
   'Dog',
@@ -59,19 +56,77 @@ export const names = [
   'Fox',
   'George',
   'How',
+  'Henry',
   'Item',
+  'Italy',
   'Jig',
   'King',
   'Love',
+  'Linda',
   'Nan',
   'Oboe',
   'Peter',
   'Queen',
   'Roger',
+  'Rose',
   'Sugar',
   'Tare',
   'Uncle',
   'William',
+
+  'Anton',
+  'Berta',
+  'Caeser',
+  'Dora',
+  'Emil',
+  'Friedrich',
+  'Gustav',
+  'Heinrich',
+  'Ida',
+  'Josef',
+  'Konrad',
+  'Ludwig',
+  'Martha',
+  'Nordpol',
+  'Otto',
+  'Paula',
+  'Quelle',
+  'Richard',
+  'Siegfried',
+  'Toni',
+  'Ulrich',
+  'Viktor',
+  'Wilhelm',
+  'Xantippe',
+  'Ypern',
+  'Zeppelin',
+
+  'Anna',
+  'Boris',
+  'Vasily',
+  'Gregory',
+  'Dmitri',
+  'Elena',
+  'Zinaida',
+  'Ivan',
+  'Konstantin',
+  'Leonid',
+  'Mikhail',
+  'Nikolai',
+  'Olga',
+  'Pavel',
+  'Roman',
+  'Semyon',
+  'Tatyana',
+  'Ulyana',
+  'Fyodor',
+  'Khariton',
+  'Tsaplya',
+  'Chelovek',
+  'Shura',
+  'Yery',
+  'Yuri',
+  'Yakov',
 ]
 
 export const trainNames = [
@@ -176,10 +231,3 @@ export const trainNames = [
   'hateful',
   'acid',
 ]
-
-// export const defaultConfig: Config = {
-//   shouldSnapToGrid: false,
-//   trainsCount: 0,
-//   stationsCount: names.length,
-//   playBtn: document.getElementById('play')!,
-// }

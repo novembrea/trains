@@ -1,50 +1,85 @@
 import Konva from 'konva'
-import { Circle } from 'konva/types/shapes/Circle'
 import { Path } from 'konva/types/shapes/Path'
-import { RegularPolygon } from 'konva/types/shapes/RegularPolygon'
 
 import { trainRadius } from './constants'
-import { Vertex } from './types'
-import { randColor } from './utils'
-
-interface TrainProps {
-  name: string
-  route: Path[]
-  endVertex: Vertex
-}
+import { TrainShape, Vertex } from './types'
+import { randColor, round } from './utils'
 
 export class Train {
-  currentPosition: number
-  currentRouteIndex: number
-  endVertex: Vertex
-  hasArrived: boolean
-  name: string
-  pathLength: number
+  readonly shape: TrainShape
+  private readonly velocity: number
+  speedModifier: number
+
+  // Position of the shape along current edge, lies in range of 0 to routeLength.
+  private currentPosition: number
+  private routeLength: number
+
+  // Train route is a composition of edges between stations, represented by Konva's Path shapes.
   route: Path[]
+
+  // Index of a Path on which train is currently moving.
+  // Upon reaching the end of the Path (currentPosition == routeLength) this field is incremented.
+  private currentRouteIndex: number
+
+  // End point in this train's route.
+  endVertex: Vertex
+
+  // Auxiliary fields.
+  name: string
   trainType: string
 
-  constructor({ route, endVertex, name }: TrainProps, trainType: string) {
+  constructor(
+    name: string,
+    trainType: string,
+    route: Path[],
+    endVertex: Vertex,
+    shape: TrainShape,
+    velocity: number,
+    speedModifier: number,
+  ) {
     this.name = name
     this.trainType = trainType
-    this.route = route
-    this.endVertex = endVertex
-    this.pathLength = route.length
-    this.currentRouteIndex = 0
-    this.currentPosition = 0
-    this.hasArrived = false
+    this.shape = shape
+    this.velocity = velocity
+    this.speedModifier = speedModifier
+    this.init(route, endVertex)
   }
 
-  get currentRoute() {
+  private init(route: Path[], endVertex: Vertex) {
+    this.route = route
+    this.endVertex = endVertex
+
+    this.routeLength = route.length
+    this.currentRouteIndex = 0
+    this.currentPosition = 0
+  }
+
+  private get actualVelocity() {
+    return this.velocity * this.speedModifier
+  }
+
+  public get currentPath(): Path {
     return this.route[this.currentRouteIndex]
   }
 
+  public get isEndOfRoute(): boolean {
+    return this.currentRouteIndex === this.routeLength
+  }
+
+  public get isEndOfPath(): boolean {
+    const { x, y } = this.currentPath.getPointAtLength(this.actualVelocity * this.currentPosition)
+    const { x: x2, y: y2 } = this.currentPath.getPointAtLength(this.currentPath.getLength())
+    return round(x) === round(x2) && round(y) === round(y2)
+  }
+
+  public moveForward() {
+    const { x, y } = this.currentPath.getPointAtLength(this.actualVelocity * this.currentPosition)
+    this.shape.position({ x: x, y: y })
+    this.currentPosition++
+  }
+
   public updateRoute(route: Path[], endVertex: Vertex) {
-    this.route = route
-    this.endVertex = endVertex
-    this.pathLength = route.length
-    this.currentRouteIndex = 0
-    this.currentPosition = 0
-    this.hasArrived = false
+    this.init(route, endVertex)
   }
 
   public incrementPos() {
@@ -52,22 +87,21 @@ export class Train {
   }
 
   public nextStation() {
+    // Store and reset current position to the beginning of the new path
+    let prevPos = this.currentPosition
     this.currentPosition = 0
     this.currentRouteIndex++
-    let prevPos = this.currentPosition
-    if (this.currentRouteIndex === this.pathLength) {
-      this.hasArrived = true
+
+    if (this.isEndOfRoute) {
+      // If this is the end of the current route, restore currentPosition until new route is generated.
       this.currentPosition = prevPos
     }
   }
 }
 
 export class Freight extends Train {
-  shape: RegularPolygon
-  velocity: number
-  constructor({ name, route, endVertex }: TrainProps, x1: number, y1: number) {
-    super({ name, route, endVertex }, 'freight')
-    this.shape = new Konva.RegularPolygon({
+  constructor(name: string, route: Path[], endVertex: Vertex, speedModifier: number, x1: number, y1: number) {
+    const shape = new Konva.RegularPolygon({
       x: x1,
       y: y1,
       sides: 3,
@@ -76,47 +110,8 @@ export class Freight extends Train {
       stroke: 'black',
       strokeWidth: 1,
     })
-    this.velocity = 0.3
-  }
-}
-
-export class Passanger extends Train {
-  shape: Circle
-  velocity: number
-
-  constructor({ name, route, endVertex }: TrainProps, x1: number, y1: number) {
-    super({ name, route, endVertex }, 'passanger')
-    this.trainType = 'passanger'
-    this.shape = this.shape = new Konva.Circle({
-      x: x1,
-      y: y1,
-      radius: trainRadius - 2,
-      fill: randColor(),
-      stroke: 'black',
-      strokeWidth: 1,
-    })
-
-    this.velocity = 0.4
-  }
-}
-
-export class Bullet extends Train {
-  shape: RegularPolygon
-  velocity: number
-
-  constructor({ name, route, endVertex }: TrainProps, x1: number, y1: number) {
-    super({ name, route, endVertex }, 'bullet')
-    this.trainType = 'bullet'
-    this.shape = this.shape = new Konva.RegularPolygon({
-      x: x1,
-      y: y1,
-      sides: 5,
-      radius: trainRadius - 2,
-      fill: randColor(),
-      stroke: 'black',
-      strokeWidth: 1,
-    })
-
-    this.velocity = 0.8
+    const velocity = 0.2
+    const trainType = 'freight'
+    super(name, trainType, route, endVertex, shape, velocity, speedModifier)
   }
 }

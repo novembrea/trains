@@ -6,8 +6,6 @@ import { Train } from './train'
 import { Config } from './types'
 import { byid, toCapital } from './utils'
 
-const toggleState: { [key: string]: boolean } = {}
-
 const uiTrainInfoTmpl = (t: Train) => `
 <li id="${t.name}">
   <div style="margin-bottom: 10px;">
@@ -16,7 +14,7 @@ const uiTrainInfoTmpl = (t: Train) => `
         loco. <span style="color:deeppink;font-weight: bold;">${toCapital(t.name)}</span>, class ${t.trainType}
       </p>
     </div>
-    <small ${toggleState[`${t.name}-route`] && 'hidden'} id="${t.name}-route" style="font-size: 12">
+    <small id="${t.name}-route" style="font-size: 12">
       ${t.route
         .map(
           (r, i) =>
@@ -32,6 +30,7 @@ const uiTrainInfoTmpl = (t: Train) => `
 </li>
 `
 
+const uiSpeedModifier = byid('speed-modifier')!
 const uiConnectionDensity = byid('connection-density')!
 const uiStationsPassed = byid('stations-passed')!
 const uiRoutesCompleted = byid('routes-completed')!
@@ -60,7 +59,7 @@ export function insertTrainSchedule(t: Train) {
 }
 
 export function updateTrainSchedule(t: Train) {
-  const [prev, next] = t.route[t.currentRouteIndex]
+  const [prev, next] = t.currentPath
     .name()
     .split('-')
     .map(w => w.toLowerCase())
@@ -74,7 +73,7 @@ export function updateTrainSchedule(t: Train) {
 
 const playHandler = () => {
   if (!isPlaying) {
-    uiPlayBtn.innerText = 'STOP'
+    uiPlayBtn.innerText = 'PAUSE'
     isPlaying = true
     return animation.start()
   }
@@ -94,16 +93,19 @@ const initialConfig = () => {
   let trainsCount = trainNames.length
   let connectionDensity = 2
   let shouldSnapToGrid = false
+  let globalSpeedModifier = 1
 
   if (lsget('station_counter') !== null) stationsCount = +lsget('station_counter')!
   if (lsget('connection_density') !== null) connectionDensity = +lsget('connection_density')!
   if (lsget('trains_counter') !== null) trainsCount = +lsget('trains_counter')!
   if (lsget('should_snap') !== null) shouldSnapToGrid = lsget('should_snap')! === 'true'
+  if (lsget('global_speed') !== null) globalSpeedModifier = +lsget('global_speed')!
 
   return {
     stationsCount,
     trainsCount,
     connectionDensity,
+    globalSpeedModifier,
     shouldSnapToGrid,
   }
 }
@@ -129,6 +131,12 @@ export default function initUI() {
     // uiStationCounter.innerText = value
     localStorage.setItem('connection_density', value)
     Object.assign(config, { connectionDensity: +value })
+  })
+  ;(uiSpeedModifier as HTMLSelectElement).value = config.globalSpeedModifier.toString()
+  uiSpeedModifier.addEventListener('change', e => {
+    const { value } = e.target as HTMLInputElement
+    localStorage.setItem('speed_modifier', value)
+    Object.assign(config, { globalSpeedModifier: +value })
   })
 
   // Stations slider.

@@ -3,7 +3,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700&display=swap" />
-    <title>Here be trains</title>
+    <title>🏭🚂🛤️ trains!</title>
     <style>
       html,
       body {
@@ -15,6 +15,15 @@
         background-color: #222;
         color: white;
       }
+      header {
+        padding: 20px 0 20px 0;
+        justify-content: center;
+        align-items: center;
+        display: flex;
+      }
+      button {
+        cursor: pointer;
+      }
       .konvajs-content {
         background-color: white;
         border: 2px solid black;
@@ -24,16 +33,10 @@
         display: flex;
         align-items: center;
       }
-      header {
-        padding: 20px 0 20px 0;
-        justify-content: center;
-        align-items: center;
-        display: flex;
-      }
       .h-button {
         font-family: inherit;
         font-size: 1.25em;
-        font-weight: 400;
+        font-weight: 500;
         line-height: 1.5rem;
         font-size: 18px;
         background: deeppink;
@@ -96,7 +99,7 @@
       <section>
         <h2>Schedule</h2>
         <h4 style="margin: 0;">Stations passed: &nbsp; <span id="stations-passed">0</span></h4>
-        <h4 style="margin: 5 0 20 0;">Routes completed:&nbsp; <span id="routes-completed">0</span></h4>
+        <h4 style="margin: 5 0 10 0;">Routes completed:&nbsp; <span id="routes-completed">0</span></h4>
         <ul id="schedule" style="list-style: none; padding: 0 25px 0 0 ; margin: 0; max-height: 800px; overflow-y: scroll;"></ul>
       </section>
       <section>
@@ -108,35 +111,49 @@
           </div>
           <div class="box">
             <button class="h-button" id="refresh">
-              Refresh
+              REFRESH
             </button>
           </div>
           <div class="box" style="min-width: 100; flex-direction: column; align-items: flex-start; text-align: left;">
-            <label for="connection-density" style="padding-bottom: 5px;">Connection density</label>
-            <select style="min-width: 100%"" id="connection-density">
-              <option value="2"> 2-2 edges per station</option>
-              <option value="3"> 2-3 edges per station</option>
-              <option value="4"> 2-4 edges per station</option>
-              <option value="6"> 2-6 edges per station</option>
-              <option value="8"> 2-8 edges per station</option>
+            <label for="speed-modifier" style="padding-bottom: 5px;">Speed modifier</label>
+            <select style="min-height:25px; min-width: 100%"" id="speed-modifier">
+              <option value="1">1x</option>
+              <option value="2">2x</option>
+              <option value="3">3x</option>
+              <option value="5">5x</option>
+              <option value="10">10x</option>
             </select>
           </div>
-          <div class="box" style="min-width: 250;">
-            <p style="margin-right: 10px;">trains:</p>
-            <input id="trains-slider" class="slider" type="range" min="2" max="2" value="2" />
-            <h3 id="trains-slider-counter" style="padding-left: 10;">2</h3>
+          <div class="box" style="min-width: 100; flex-direction: column; align-items: flex-start; text-align: left;">
+            <label for="connection-density" style="padding-bottom: 5px;">Connection density</label>
+            <select style="min-height:25px; min-width: 100%"" id="connection-density">
+              <option value="2">2-2 edges per station</option>
+              <option value="3">2-3 edges per station</option>
+              <option value="4">2-4 edges per station</option>
+              <option value="6">2-6 edges per station</option>
+              <option value="8">2-8 edges per station</option>
+            </select>
+          </div>
+          <div class="box" style="min-width: 250px; flex-direction: column; align-items: flex-start;">
+            <p style="margin: 0 0 5px 0;">Trains count:</p>
+            <div style="display: flex; align-items: center; width: 100%; min-height:25px;">
+              <input id="trains-slider" class="slider" type="range" min="1" max="1" value="1" />
+              <h3 id="trains-slider-counter" style="padding-left: 10; margin: 0; min-width: 45px;">2</h3>
+            </div>
           </div>
           </div>
-          <div class="box" style="min-width: 250;">
-            <p style="margin-right: 10px;">stations:</p>
-            <input id="stations-slider" class="slider" type="range" min="2" max="2" value="2" />
-            <h3 id="stations-slider-counter" style="padding-left: 10;">2</h3>
+          <div class="box" style="min-width: 250px; flex-direction: column; align-items: flex-start; ">
+            <p style="margin: 0 0 5px 0;">stations:</p>
+            <div style="display: flex; align-items: center; width: 100%; min-height:25px;">
+              <input id="stations-slider" class="slider" type="range" min="2" max="2" value="2" />
+              <h3 id="stations-slider-counter" style="padding-left: 10; margin: 0; min-width: 45px;">2</h3>
+            </div>
           </div>
-          <div class="box">
-            <label for="snap-checkbox">
+          <div class="box" style="flex-direction: column; align-items: flex-start;">
+            <label for="snap-checkbox" style="min-height:25px; cursor: pointer;">
               Snap to grid
-              <input id="snap-checkbox" class="checkbox" type="checkbox" />
             </label>
+            <input id="snap-checkbox" style="cursor: pointer;" type="checkbox" />
           </div>
         </header>
 

@@ -17,7 +17,7 @@ import {
   yPlacementBound,
 } from './constants'
 import RailRoadGraph from './railroad'
-import { Bullet, Freight, Passanger } from './train'
+import { Freight } from './train'
 import { Config, Distance, Stations } from './types'
 import { bindPlayBtn, insertTrainSchedule, updateTrainSchedule } from './ui'
 import {
@@ -29,7 +29,6 @@ import {
   pointDistance,
   randBetween,
   randColor,
-  round,
 } from './utils'
 
 let config: Config
@@ -42,7 +41,7 @@ let graphBuildAttempts = 0
   placeVertex() attempts to fit vertex on the canvas considering already occupied spots.
   Constraints are based on the padded canvas dimensions and the constant value of exlusion radius,
   function will recursively attempt to place vertex on a random coordinates until it succeeds or
-  attempts count reach predifined number - then it throws.
+  attempts count reach predifined number, in which case it throws.
 */
 function placeVertex({ name, radius = stationRadius }: { name: string; radius?: number }) {
   let placed = false
@@ -236,20 +235,22 @@ function render(c: Config): void {
   stage.add(graphLayer)
 
   const trainLayer = new Konva.Layer()
-  const trains: (Freight | Passanger | Bullet)[] = []
+  const trains: Freight[] = []
   for (const trainName of shuffle(trainNames).slice(0, c.trainsCount)) {
     const [start, end] = rr.randomStartEnd()
     let route: Path[] | null = []
-    const make = () => (route = generateRoute(start, end, rr, stations))
-    make()
-    if (route === null || route.length === 0) make()
+    const tryRoute = () => (route = generateRoute(start, end, rr, stations))
+    tryRoute()
+    if (route.length === 0) tryRoute()
 
     const train = new Freight(
-      { name: trainName, route, endVertex: end },
+      trainName,
+      route,
+      end,
+      config.globalSpeedModifier,
       stations[start.name].station.x(),
       stations[start.name].station.y(),
     )
-    train.pathLength = route.length
     trainLayer.add(train.shape)
     insertTrainSchedule(train)
     trains.push(train)
@@ -258,25 +259,17 @@ function render(c: Config): void {
 
   let anim = new Konva.Animation((frame: any) => {
     for (let train of trains) {
-      if (train.hasArrived) {
-        const end = rr.randomEnd(train.endVertex)
-        const generated = generateRoute(train.endVertex, end, rr, stations)!
-        train.updateRoute(generated, end)
-        insertTrainSchedule(train)
-      }
-
-      const { currentRoute } = train
-      if (currentRoute === undefined) {
-        throw `${train.name} COULDN'T GET PATH!`
-      }
-      const { x: x2, y: y2 } = currentRoute.getPointAtLength(currentRoute.getLength())
-      const { x, y } = currentRoute.getPointAtLength(train.velocity * train.currentPosition)
-      if (round(x) === round(x2) && round(y) === round(y2)) {
+      if (train.isEndOfPath) {
         updateTrainSchedule(train)
         train.nextStation()
       }
-      train.shape.position({ x: x, y: y })
-      train.incrementPos()
+      if (train.isEndOfRoute) {
+        const end = rr.randomEnd(train.endVertex)
+        const generated = generateRoute(train.endVertex, end, rr, stations)
+        train.updateRoute(generated, end)
+        insertTrainSchedule(train)
+      }
+      train.moveForward()
     }
   }, trainLayer)
 

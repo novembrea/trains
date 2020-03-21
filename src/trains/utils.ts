@@ -46,6 +46,8 @@ interface intersectionArgs {
   cy: number
   radius: number
 }
+
+// Borrowed from https://github.com/davidfig/intersects/blob/master/line-circle.js
 const dot = (v1: number[], v2: number[]) => v1[0] * v2[0] + v1[1] * v2[1]
 export const doesLineIntersectCircle = (props: intersectionArgs) => {
   let { x1, x2, y1, y2, cx, cy, radius } = props
@@ -74,12 +76,12 @@ export const canFitStation = (x: number, y: number, stations: Stations): boolean
   return true
 }
 
-export const generateRoute = (start: Vertex, end: Vertex, g: RailRoadGraph, stations: Stations): Path[] | null => {
+export const generateRoute = (start: Vertex, end: Vertex, g: RailRoadGraph, stations: Stations): Path[] => {
   let p: string[]
   try {
     p = dijkstra(start, end, g)
   } catch (error) {
-    return null
+    throw Error(error)
   }
 
   return [
