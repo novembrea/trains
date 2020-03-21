@@ -30,6 +30,7 @@ const uiTrainInfoTmpl = (t: Train) => `
 </li>
 `
 
+// DOM elements.
 const uiSpeedModifier = byid('speed-modifier')!
 const uiConnectionDensity = byid('connection-density')!
 const uiStationsPassed = byid('stations-passed')!
@@ -38,55 +39,12 @@ const uiPlayBtn = byid('play')!
 const uiRefreshBtn = byid('refresh')!
 const uiScheduleBox = byid('schedule')!
 const uiSnapCheckbox = byid('snap-checkbox')!
-
 const uiStationSlider = byid('stations-slider')!
 const uiStationCounter = byid('stations-slider-counter')!
-
 const uiTrainsSlider = byid('trains-slider')!
 const uiTrainsCounter = byid('trains-slider-counter')!
 
-let isPlaying = false
-let animation: Animation
-
-export function insertTrainSchedule(t: Train) {
-  const entry = byid(t.name)
-  if (!entry) {
-    return uiScheduleBox.insertAdjacentHTML('afterbegin', uiTrainInfoTmpl(t))
-  }
-  uiRoutesCompleted.innerText = (Number(uiRoutesCompleted.innerText) + 1).toString()
-  uiScheduleBox.querySelector(`#${t.name}`)!.innerHTML = ''
-  return uiScheduleBox.querySelector(`#${t.name}`)!.insertAdjacentHTML('afterbegin', uiTrainInfoTmpl(t))
-}
-
-export function updateTrainSchedule(t: Train) {
-  const [prev, next] = t.currentPath
-    .name()
-    .split('-')
-    .map(w => w.toLowerCase())
-  const tid = t.name.toLowerCase()
-  const prevEl = byid(`${tid}-${prev}`)
-  const nextEl = byid(`${tid}-${next}`)
-  if (prevEl) prevEl.style.color = ''
-  if (nextEl) nextEl.style.color = 'deeppink'
-  uiStationsPassed.innerText = (Number(uiStationsPassed.innerText) + 1).toString()
-}
-
-const playHandler = () => {
-  if (!isPlaying) {
-    uiPlayBtn.innerText = 'PAUSE'
-    isPlaying = true
-    return animation.start()
-  }
-  uiPlayBtn.innerText = 'PLAY'
-  isPlaying = false
-  return animation.stop()
-}
-
-export function bindPlayBtn(anim: Animation) {
-  animation = anim
-  uiPlayBtn.addEventListener('click', playHandler)
-}
-
+// Read potential values from local storage and initialize config.
 const lsget = (x: string) => localStorage.getItem(x)
 const initialConfig = () => {
   let stationsCount = names.length
@@ -109,12 +67,64 @@ const initialConfig = () => {
     shouldSnapToGrid,
   }
 }
+
+// Insert or update train route display for the first time or when the previous one was completed.
+export function insertTrainSchedule(t: Train) {
+  const entry = byid(t.name)
+  if (!entry) {
+    return uiScheduleBox.insertAdjacentHTML('afterbegin', uiTrainInfoTmpl(t))
+  }
+  uiRoutesCompleted.innerText = (Number(uiRoutesCompleted.innerText) + 1).toString()
+  uiScheduleBox.querySelector(`#${t.name}`)!.innerHTML = ''
+  return uiScheduleBox.querySelector(`#${t.name}`)!.insertAdjacentHTML('afterbegin', uiTrainInfoTmpl(t))
+}
+
+// Highlight edges where train is currently moving.
+export function updateTrainSchedule(t: Train) {
+  const [prev, next] = t.currentPath
+    .name()
+    .split('-')
+    .map(w => w.toLowerCase())
+  const tid = t.name.toLowerCase()
+  const prevEl = byid(`${tid}-${prev}`)
+  const nextEl = byid(`${tid}-${next}`)
+  if (prevEl) prevEl.style.color = ''
+  if (nextEl) nextEl.style.color = 'deeppink'
+  uiStationsPassed.innerText = (Number(uiStationsPassed.innerText) + 1).toString()
+}
+
+// Toggle animation handler.
+let isPlaying = false
+let animation: Animation
+function playHandler() {
+  if (!isPlaying) {
+    uiPlayBtn.innerText = 'PAUSE'
+    isPlaying = true
+    return animation.start()
+  }
+  uiPlayBtn.innerText = 'PLAY'
+  isPlaying = false
+  return animation.stop()
+}
+
+export function bindPlayBtn(anim: Animation) {
+  animation = anim
+  uiPlayBtn.addEventListener('click', playHandler)
+}
+
+// Initialize UI, bind events, produce config and render app for the first time.
 export default function initUI() {
   let config: Config = {
     ...initialConfig(),
     playBtn: uiPlayBtn,
   }
 
+  const notifyAboutRefresh = () => {
+    uiRefreshBtn.style.background = '#222222'
+    uiRefreshBtn.innerText = 'APPLY CHANGES'
+  }
+
+  // Refresn button. Stop animation, remove listeners, reset UI and render again.
   uiRefreshBtn.addEventListener('click', () => {
     animation.stop()
     uiPlayBtn.removeEventListener('click', playHandler)
@@ -123,20 +133,29 @@ export default function initUI() {
     uiStationsPassed.innerText = '0'
     uiRoutesCompleted.innerText = '0'
     uiScheduleBox.innerHTML = ''
+
+    uiRefreshBtn.style.background = ''
+    uiRefreshBtn.style.border = ''
+    uiRefreshBtn.innerText = 'REFRESH'
     render(config)
   })
+
+  // Connection density select.
   ;(uiConnectionDensity as HTMLSelectElement).value = config.connectionDensity.toString()
   uiConnectionDensity.addEventListener('change', e => {
     const { value } = e.target as HTMLInputElement
-    // uiStationCounter.innerText = value
     localStorage.setItem('connection_density', value)
     Object.assign(config, { connectionDensity: +value })
   })
+
+  // Speed modifier select.
   ;(uiSpeedModifier as HTMLSelectElement).value = config.globalSpeedModifier.toString()
   uiSpeedModifier.addEventListener('change', e => {
     const { value } = e.target as HTMLInputElement
     localStorage.setItem('speed_modifier', value)
     Object.assign(config, { globalSpeedModifier: +value })
+
+    notifyAboutRefresh()
   })
 
   // Stations slider.
@@ -148,6 +167,8 @@ export default function initUI() {
     uiStationCounter.innerText = value
     localStorage.setItem('station_counter', value)
     Object.assign(config, { stationsCount: value })
+
+    notifyAboutRefresh()
   })
 
   // Trains slider.
@@ -159,6 +180,7 @@ export default function initUI() {
     uiTrainsCounter.innerText = value
     localStorage.setItem('trains_counter', value)
     Object.assign(config, { trainsCount: value })
+    notifyAboutRefresh()
   })
 
   // Snap checkbox.
@@ -167,6 +189,8 @@ export default function initUI() {
     const { checked } = e.target as HTMLInputElement
     localStorage.setItem('should_snap', String(checked))
     Object.assign(config, { shouldSnapToGrid: checked })
+
+    notifyAboutRefresh()
   })
 
   render(config)
