@@ -98,6 +98,7 @@ const initialConfig = () => {
   if (lsget('station_counter') !== null) stationsCount = +lsget('station_counter')!
   if (lsget('connection_density') !== null) connectionDensity = +lsget('connection_density')!
   if (lsget('trains_counter') !== null) trainsCount = +lsget('trains_counter')!
+  if (lsget('should_snap') !== null) shouldSnapToGrid = lsget('should_snap')! === 'true'
 
   return {
     stationsCount,
@@ -153,8 +154,10 @@ export default function initUI() {
   })
 
   // Snap checkbox.
+  ;(uiSnapCheckbox as HTMLInputElement).checked = config.shouldSnapToGrid
   uiSnapCheckbox.addEventListener('change', e => {
     const { checked } = e.target as HTMLInputElement
+    localStorage.setItem('should_snap', String(checked))
     Object.assign(config, { shouldSnapToGrid: checked })
   })
 
