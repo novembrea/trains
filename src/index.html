@@ -79,15 +79,25 @@
         background: deeppink;
         cursor: pointer;
       }
+      ::-webkit-scrollbar-track {
+        background-color: #333333;
+      }
+      ::-webkit-scrollbar-thumb {
+        background-color: deeppink;
+      }
+      ::-webkit-scrollbar {
+        width: 6px;
+        background-color: #333333;
+      } 
     </style>
   </head>
   <body style="padding-top: 20px; text-align: center;">
     <main style="text-align: left; display: flex; justify-content: space-between; align-items: flex-start;">
-      <section style="padding-right: 25px;">
+      <section>
         <h2>Schedule</h2>
         <h4 style="margin: 0;">Stations passed: &nbsp; <span id="stations-passed">0</span></h4>
         <h4 style="margin: 5 0 20 0;">Routes completed:&nbsp; <span id="routes-completed">0</span></h4>
-        <ul id="schedule" style="list-style: none; padding: 0; margin: 0;"></ul>
+        <ul id="schedule" style="list-style: none; padding: 0 25px 0 0 ; margin: 0; max-height: 800px; overflow-y: scroll;"></ul>
       </section>
       <section>
         <header id="ui" style="display: flex; justify-content: flex-end;">

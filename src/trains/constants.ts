@@ -76,7 +76,7 @@ export const names = [
 
 export const trainNames = [
   'deserted',
-  'male',
+  'aware',
   'vigorous',
   'third',
   'acoustic',
@@ -102,8 +102,6 @@ export const trainNames = [
   'vast',
   'melted',
   'gigantic',
-  'soggy',
-  'swanky',
   'dear',
   'fierce',
   'various',
@@ -123,6 +121,7 @@ export const trainNames = [
   'sable',
   'jobless',
   'giant',
+  'tiny',
   'thirsty',
   'gaping',
   'puzzled',
@@ -143,6 +142,7 @@ export const trainNames = [
   'soggy',
   'cautious',
   'rural',
+  'wondrous',
   'careful',
   'tidy',
   'reminiscent',

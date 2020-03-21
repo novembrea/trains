@@ -53,6 +53,7 @@ export function insertTrainSchedule(t: Train) {
   if (!entry) {
     return uiScheduleBox.insertAdjacentHTML('afterbegin', uiTrainInfoTmpl(t))
   }
+  console.log(entry)
   uiRoutesCompleted.innerText = (Number(uiRoutesCompleted.innerText) + 1).toString()
   uiScheduleBox.querySelector(`#${t.name}`)!.innerHTML = ''
   return uiScheduleBox.querySelector(`#${t.name}`)!.insertAdjacentHTML('afterbegin', uiTrainInfoTmpl(t))
@@ -91,7 +92,7 @@ export default function initUI() {
   let config: Config = {
     shouldSnapToGrid: false,
     stationsCount: Number(localStorage.getItem('station_counter')) ?? names.length,
-    connectionDensity: 4,
+    connectionDensity: 5,
     trainsCount: Number(localStorage.getItem('trains_counter')) ?? trainNames.length,
     playBtn: uiPlayBtn,
   }
@@ -101,7 +102,8 @@ export default function initUI() {
     uiPlayBtn.removeEventListener('click', playHandler)
     uiPlayBtn.innerText = 'PLAY'
     isPlaying = false
-
+    uiStationsPassed.innerText = '0'
+    uiRoutesCompleted.innerText = '0'
     uiScheduleBox.innerHTML = ''
     render(config)
   })

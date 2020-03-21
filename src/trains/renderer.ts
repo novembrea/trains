@@ -2,6 +2,7 @@ import Konva from 'konva'
 import { Layer } from 'konva/types/Layer'
 import { Path } from 'konva/types/shapes/Path'
 import { Stage } from 'konva/types/Stage'
+import shuffle from 'lodash/shuffle'
 
 import {
   abortGraphBuildAttempts,
@@ -101,7 +102,9 @@ function computeDistances(name: string) {
     const distance = pointDistance(target.x(), value.x(), target.y(), value.y())
     distances[name].push({ station: key, distance })
   }
-  distances[name] = distances[name].sort((a, b) => a.distance - b.distance).slice(0, randBetween(1, 4))
+  distances[name] = distances[name]
+    .sort((a, b) => a.distance - b.distance)
+    .slice(0, randBetween(2, config.connectionDensity))
 }
 
 // addEdges assigns edges to the graph based on computed distances.
@@ -234,7 +237,7 @@ function render(c: Config): void {
 
   const trainLayer = new Konva.Layer()
   const trains: (Freight | Passanger | Bullet)[] = []
-  for (const trainName of trainNames.slice(0, c.trainsCount)) {
+  for (const trainName of shuffle(trainNames).slice(0, c.trainsCount)) {
     const [start, end] = rr.randomStartEnd()
     let route: Path[] | null = []
     const make = () => (route = generateRoute(start, end, rr, stations))
