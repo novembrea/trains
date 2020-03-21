@@ -5,7 +5,7 @@ var { CleanWebpackPlugin } = require('clean-webpack-plugin')
 
 var isProduction = process.argv.indexOf('-p') >= 0 || process.env.NODE_ENV === 'production'
 var sourcePath = path.join(__dirname, './src')
-var outPath = path.join(__dirname, './build')
+var outPath = path.join(__dirname, './dist')
 
 var HtmlWebpackPlugin = require('html-webpack-plugin')
 
