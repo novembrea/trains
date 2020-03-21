@@ -8,9 +8,9 @@ import {
   abortPlacementAttempts,
   canvasWidth,
   cavnasHeight,
-  defaultConfig,
   names,
   stationRadius,
+  trainNames,
   vertexExclusionRadius,
   xPlacementBound,
   yPlacementBound,
@@ -196,8 +196,8 @@ function drawEdges(rr: RailRoadGraph, graphLayer: Layer) {
   })
 }
 
-function render(c?: Config): void {
-  config = c || defaultConfig
+function render(c: Config): void {
+  config = c
   let selecetedNames = names.slice(0, config.stationsCount)
   const rr = new RailRoadGraph(selecetedNames.slice(0, config.stationsCount))
   if (graphBuildAttempts === abortGraphBuildAttempts) {
@@ -233,40 +233,23 @@ function render(c?: Config): void {
   stage.add(graphLayer)
 
   const trainLayer = new Konva.Layer()
-  const trains: (Freight | Passanger)[] = [
-    new Freight({ name: 'Tireless', route: [], endVertex: rr.anyVertex() }, 0, 0),
-    new Freight({ name: 'Industrious', route: [], endVertex: rr.anyVertex() }, 0, 0),
-    new Freight({ name: 'Mammoth', route: [], endVertex: rr.anyVertex() }, 0, 0),
-    new Freight({ name: 'Diligent', route: [], endVertex: rr.anyVertex() }, 0, 0),
-    new Freight({ name: 'Eager', route: [], endVertex: rr.anyVertex() }, 0, 0),
-    new Freight({ name: 'Ambitious', route: [], endVertex: rr.anyVertex() }, 0, 0),
-    new Freight({ name: 'Chubby', route: [], endVertex: rr.anyVertex() }, 0, 0),
-    new Freight({ name: 'Grumpy', route: [], endVertex: rr.anyVertex() }, 0, 0),
-    new Passanger({ name: 'Brief', route: [], endVertex: rr.anyVertex() }, 0, 0),
-    new Passanger({ name: 'Loose', route: [], endVertex: rr.anyVertex() }, 0, 0),
-    new Passanger({ name: 'Melodic', route: [], endVertex: rr.anyVertex() }, 0, 0),
-    new Passanger({ name: 'RedFox', route: [], endVertex: rr.anyVertex() }, 0, 0),
-    new Passanger({ name: 'Nimble', route: [], endVertex: rr.anyVertex() }, 0, 0),
-    new Passanger({ name: 'Comfy', route: [], endVertex: rr.anyVertex() }, 0, 0),
-    new Passanger({ name: 'Bright', route: [], endVertex: rr.anyVertex() }, 0, 0),
-    new Passanger({ name: 'Animate', route: [], endVertex: rr.anyVertex() }, 0, 0),
-    new Bullet({ name: 'Agile', route: [], endVertex: rr.anyVertex() }, 0, 0),
-    new Bullet({ name: 'Swift', route: [], endVertex: rr.anyVertex() }, 0, 0),
-    new Bullet({ name: 'Rapid', route: [], endVertex: rr.anyVertex() }, 0, 0),
-    new Bullet({ name: 'Whew', route: [], endVertex: rr.anyVertex() }, 0, 0),
-  ]
-  for (const train of trains) {
+  const trains: (Freight | Passanger | Bullet)[] = []
+  for (const trainName of trainNames.slice(0, c.trainsCount)) {
     const [start, end] = rr.randomStartEnd()
     let route: Path[] | null = []
     const make = () => (route = generateRoute(start, end, rr, stations))
     make()
     if (route === null || route.length === 0) make()
-    train.route = route
+
+    const train = new Freight(
+      { name: trainName, route, endVertex: end },
+      stations[start.name].station.x(),
+      stations[start.name].station.y(),
+    )
     train.pathLength = route.length
-    train.endVertex = end
-    train.shape.position({ x: stations[start.name].station.x(), y: stations[start.name].station.y() })
     trainLayer.add(train.shape)
     insertTrainSchedule(train)
+    trains.push(train)
   }
   stage.add(trainLayer)
 

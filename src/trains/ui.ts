@@ -1,10 +1,10 @@
 import { Animation } from 'konva/types/Animation'
 
-import { names } from './constants'
+import { names, trainNames } from './constants'
 import render from './renderer'
 import { Train } from './train'
 import { Config } from './types'
-import { byid } from './utils'
+import { byid, toCapital } from './utils'
 
 const toggleState: { [key: string]: boolean } = {}
 
@@ -12,15 +12,15 @@ const uiTrainInfoTmpl = (t: Train) => `
 <li id="${t.name}">
   <div style="margin-bottom: 10px;">
     <div style="display:flex;">
-      <p style="margin:0 0 5px 0; font-size: 14; font-weight: bold;">
-        loco. <span style="color:tomato;">${t.name}</span>, class ${t.trainType}
+      <p style="margin:0 0 5px 0; font-size: 14;">
+        loco. <span style="color:deeppink;font-weight: bold;">${toCapital(t.name)}</span>, class ${t.trainType}
       </p>
     </div>
     <small ${toggleState[`${t.name}-route`] && 'hidden'} id="${t.name}-route" style="font-size: 12">
       ${t.route
         .map(
           (r, i) =>
-            `<span style="${i === 0 && 'color:tomato;'}" id="${t.name.toLowerCase()}-${r
+            `<span style="${i === 0 && 'color:deeppink;'}" id="${t.name.toLowerCase()}-${r
               .name()
               .toLowerCase()
               .split('-')
@@ -37,9 +37,13 @@ const uiRoutesCompleted = byid('routes-completed')!
 const uiPlayBtn = byid('play')!
 const uiRefreshBtn = byid('refresh')!
 const uiScheduleBox = byid('schedule')!
+const uiSnapCheckbox = byid('snap-checkbox')!
+
 const uiStationSlider = byid('stations-slider')!
 const uiStationCounter = byid('stations-slider-counter')!
-const uiSnapCheckbox = byid('snap-checkbox')!
+
+const uiTrainsSlider = byid('trains-slider')!
+const uiTrainsCounter = byid('trains-slider-counter')!
 
 let isPlaying = false
 let animation: Animation
@@ -63,7 +67,7 @@ export function updateTrainSchedule(t: Train) {
   const prevEl = byid(`${tid}-${prev}`)
   const nextEl = byid(`${tid}-${next}`)
   if (prevEl) prevEl.style.color = ''
-  if (nextEl) nextEl.style.color = 'tomato'
+  if (nextEl) nextEl.style.color = 'deeppink'
   uiStationsPassed.innerText = (Number(uiStationsPassed.innerText) + 1).toString()
 }
 
@@ -86,7 +90,9 @@ export function bindPlayBtn(anim: Animation) {
 export default function initUI() {
   let config: Config = {
     shouldSnapToGrid: false,
-    stationsCount: names.length,
+    stationsCount: Number(localStorage.getItem('station_counter')) ?? names.length,
+    connectionDensity: 4,
+    trainsCount: Number(localStorage.getItem('trains_counter')) ?? trainNames.length,
     playBtn: uiPlayBtn,
   }
 
@@ -100,13 +106,6 @@ export default function initUI() {
     render(config)
   })
 
-  if (localStorage.getItem('station_counter')) {
-    Object.assign(config, {
-      stationsCount: localStorage.getItem('station_counter'),
-      playBtn: uiPlayBtn,
-    })
-  }
-
   // Stations slider.
   uiStationCounter.innerText = config.stationsCount.toString()
   ;(uiStationSlider as HTMLInputElement).max = names.length.toString()
@@ -116,6 +115,17 @@ export default function initUI() {
     uiStationCounter.innerText = value
     localStorage.setItem('station_counter', value)
     Object.assign(config, { stationsCount: value })
+  })
+
+  // Trains slider.
+  uiTrainsCounter.innerText = config.trainsCount.toString()
+  ;(uiTrainsSlider as HTMLInputElement).max = trainNames.length.toString()
+  ;(uiTrainsSlider as HTMLInputElement).value = config.trainsCount.toString()
+  uiTrainsSlider.addEventListener('input', e => {
+    const { value } = e.target as HTMLInputElement
+    uiTrainsCounter.innerText = value
+    localStorage.setItem('trains_counter', value)
+    Object.assign(config, { trainsCount: value })
   })
 
   // Snap checkbox.

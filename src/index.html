@@ -36,7 +36,7 @@
         font-weight: 400;
         line-height: 1.5rem;
         font-size: 18px;
-        background: indianred;
+        background: deeppink;
         color: white;
         padding: 0.75rem 1.5rem;
         border: none;
@@ -70,41 +70,18 @@
         appearance: none;
         width: 25px;
         height: 25px;
-        background: tomato;
+        background: deeppink;
         cursor: pointer;
       }
       .slider::-moz-range-thumb {
         width: 25px;
         height: 25px;
-        background: tomato;
+        background: deeppink;
         cursor: pointer;
       }
     </style>
   </head>
   <body style="padding-top: 20px; text-align: center;">
-    <header id="ui" style="display: flex; justify-content: flex-end;">
-      <div class="box">
-        <button class="h-button" id="play">
-          PLAY
-        </button>
-      </div>
-      <div class="box">
-        <button class="h-button" id="refresh">
-          Refresh
-        </button>
-      </div>
-      <div class="box" style="min-width: 300;">
-        <input id="stations-slider" class="slider" type="range" min="2" max="2" value="2" />
-        <h3 id="stations-slider-counter" style="padding-left: 10;">0</h3>
-      </div>
-      <div class="box">
-        <label for="snap-checkbox">
-          Snap to grid
-          <input id="snap-checkbox" class="checkbox" type="checkbox" />
-        </label>
-      </div>
-    </header>
-
     <main style="text-align: left; display: flex; justify-content: space-between; align-items: flex-start;">
       <section style="padding-right: 25px;">
         <h2>Schedule</h2>
@@ -113,6 +90,36 @@
         <ul id="schedule" style="list-style: none; padding: 0; margin: 0;"></ul>
       </section>
       <section>
+        <header id="ui" style="display: flex; justify-content: flex-end;">
+          <div class="box">
+            <button class="h-button" id="play">
+              PLAY
+            </button>
+          </div>
+          <div class="box">
+            <button class="h-button" id="refresh">
+              Refresh
+            </button>
+          </div>
+          <div class="box" style="min-width: 250;">
+            <p style="margin-right: 10px;">trains:</p>
+            <input id="trains-slider" class="slider" type="range" min="2" max="2" value="2" />
+            <h3 id="trains-slider-counter" style="padding-left: 10;">2</h3>
+          </div>
+          </div>
+          <div class="box" style="min-width: 250;">
+            <p style="margin-right: 10px;">stations:</p>
+            <input id="stations-slider" class="slider" type="range" min="2" max="2" value="2" />
+            <h3 id="stations-slider-counter" style="padding-left: 10;">2</h3>
+          </div>
+          <div class="box">
+            <label for="snap-checkbox">
+              Snap to grid
+              <input id="snap-checkbox" class="checkbox" type="checkbox" />
+            </label>
+          </div>
+        </header>
+
         <div
           id="main"
           style="padding-top: 10px; display: flex; flex-direction: column; align-items: flex-end; justify-content: center; align-content: center; min-height: 80%;"

@@ -22,6 +22,8 @@ export type Pair = {
 export type Config = {
   shouldSnapToGrid: boolean
   stationsCount: number
+  trainsCount: number
+  connectionDensity: number
   playBtn: HTMLElement
 }
 

@@ -13,6 +13,7 @@ export const makeVertex = (name: string, weight: number, type: VertexType): Vert
   type,
 })
 
+export const toCapital = (w: string) => w[0].toUpperCase() + w.slice(1, w.length)
 export const round = (n: number) => +n.toFixed(0)
 export const byid = (id: string) => document.getElementById(id)!
 export const randBetween = (min: number, max: number) => Math.random() * max + min
