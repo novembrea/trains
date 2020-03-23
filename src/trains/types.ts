@@ -1,9 +1,10 @@
 import { Circle } from 'konva/types/shapes/Circle'
 import { Path } from 'konva/types/shapes/Path'
+import { Rect } from 'konva/types/shapes/Rect'
 import { RegularPolygon } from 'konva/types/shapes/RegularPolygon'
 
 export type VertexType = 'station' | 'semaphore'
-export type TrainShape = RegularPolygon | Circle
+export type TrainShape = RegularPolygon | Circle | Rect
 export type Stations = { [key: string]: { name: string; edges: Path[]; station: Circle } }
 export type Distance = { [key: string]: { station: string; distance: number }[] }
 

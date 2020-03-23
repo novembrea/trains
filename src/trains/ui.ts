@@ -6,29 +6,30 @@ import { Train } from './train'
 import { Config } from './types'
 import { byid, toCapital } from './utils'
 
-const uiTrainInfoTmpl = (t: Train) => `
-<li id="${t.name}">
-  <div style="margin-bottom: 10px;">
+const uiTrainInfoTmpl = (t: Train) => {
+  const lastPath = t.lastPath
+    .name()
+    .split('-')
+    .pop()
+  return `
+  <div>
     <div style="display:flex;">
       <p style="margin:0 0 5px 0; font-size: 14;">
-        loco. <span style="color:deeppink;font-weight: bold;">${toCapital(t.name)}</span>, class ${t.trainType}
+        loco. <span style="color:deeppink;font-weight: bold;">${toCapital(t.name)}</span>
       </p>
     </div>
     <small id="${t.name}-route" style="font-size: 12">
       ${t.route
-        .map(
-          (r, i) =>
-            `<span style="${i === 0 && 'color:deeppink;'}" id="${t.name.toLowerCase()}-${r
-              .name()
-              .toLowerCase()
-              .split('-')
-              .shift()}">${r.name()}</span>`,
-        )
+        .map((r, i) => {
+          const [prev] = r.name().split('-')
+          return `<span style="${i === 0 && 'color:deeppink;'}" id="${t.name}-${prev}">${prev}</span>`
+        })
         .join(' ⟶ ')}
+        ⟶ <span id="${t.name}-${lastPath}">${lastPath}</span>
     </small>
   </div>
-</li>
 `
+}
 
 // DOM elements.
 const uiSpeedModifier = byid('speed-modifier')!
@@ -37,7 +38,7 @@ const uiStationsPassed = byid('stations-passed')!
 const uiRoutesCompleted = byid('routes-completed')!
 const uiPlayBtn = byid('play')!
 const uiRefreshBtn = byid('refresh')!
-const uiScheduleBox = byid('schedule')!
+const uiScheduleBox = byid('schedule-list')!
 const uiSnapCheckbox = byid('snap-checkbox')!
 const uiStationSlider = byid('stations-slider')!
 const uiStationCounter = byid('stations-slider-counter')!
@@ -72,19 +73,16 @@ const initialConfig = () => {
 export function insertTrainSchedule(t: Train) {
   const entry = byid(t.name)
   if (!entry) {
-    return uiScheduleBox.insertAdjacentHTML('afterbegin', uiTrainInfoTmpl(t))
+    return uiScheduleBox.insertAdjacentHTML('beforeend', `<li id="${t.name}">${uiTrainInfoTmpl(t)}</li>`)
   }
   uiRoutesCompleted.innerText = (Number(uiRoutesCompleted.innerText) + 1).toString()
   uiScheduleBox.querySelector(`#${t.name}`)!.innerHTML = ''
-  return uiScheduleBox.querySelector(`#${t.name}`)!.insertAdjacentHTML('afterbegin', uiTrainInfoTmpl(t))
+  return uiScheduleBox.querySelector(`#${t.name}`)!.insertAdjacentHTML('beforeend', uiTrainInfoTmpl(t))
 }
 
 // Highlight edges where train is currently moving.
 export function updateTrainSchedule(t: Train) {
-  const [prev, next] = t.currentPath
-    .name()
-    .split('-')
-    .map(w => w.toLowerCase())
+  const [prev, next] = t.currentPath.name().split('-')
   const tid = t.name.toLowerCase()
   const prevEl = byid(`${tid}-${prev}`)
   const nextEl = byid(`${tid}-${next}`)
@@ -119,7 +117,7 @@ export default function initUI() {
     playBtn: uiPlayBtn,
   }
 
-  const notifyAboutRefresh = () => {
+  const uiNotifyApplyChanges = () => {
     uiRefreshBtn.style.background = '#222222'
     uiRefreshBtn.innerText = 'APPLY CHANGES'
   }
@@ -146,6 +144,7 @@ export default function initUI() {
     const { value } = e.target as HTMLInputElement
     localStorage.setItem('connection_density', value)
     Object.assign(config, { connectionDensity: +value })
+    uiNotifyApplyChanges()
   })
 
   // Speed modifier select.
@@ -154,8 +153,8 @@ export default function initUI() {
     const { value } = e.target as HTMLInputElement
     localStorage.setItem('speed_modifier', value)
     Object.assign(config, { globalSpeedModifier: +value })
-
-    notifyAboutRefresh()
+    localStorage.setItem('global_speed', value)
+    uiNotifyApplyChanges()
   })
 
   // Stations slider.
@@ -168,7 +167,7 @@ export default function initUI() {
     localStorage.setItem('station_counter', value)
     Object.assign(config, { stationsCount: value })
 
-    notifyAboutRefresh()
+    uiNotifyApplyChanges()
   })
 
   // Trains slider.
@@ -180,7 +179,7 @@ export default function initUI() {
     uiTrainsCounter.innerText = value
     localStorage.setItem('trains_counter', value)
     Object.assign(config, { trainsCount: value })
-    notifyAboutRefresh()
+    uiNotifyApplyChanges()
   })
 
   // Snap checkbox.
@@ -190,7 +189,7 @@ export default function initUI() {
     localStorage.setItem('should_snap', String(checked))
     Object.assign(config, { shouldSnapToGrid: checked })
 
-    notifyAboutRefresh()
+    uiNotifyApplyChanges()
   })
 
   render(config)

@@ -1,5 +1,5 @@
 //? All widths, heights and radiuses are based on pixels
-export const canvasWidth = 1400
+export const canvasWidth = 1600
 export const cavnasHeight = 800
 
 // Arbitrary number of vertex placement/graph build attempts.

@@ -3,7 +3,7 @@ import { Path } from 'konva/types/shapes/Path'
 
 import { trainRadius } from './constants'
 import { TrainShape, Vertex } from './types'
-import { randColor, round } from './utils'
+import { round } from './utils'
 
 export class Train {
   readonly shape: TrainShape
@@ -12,7 +12,7 @@ export class Train {
 
   // Position of the shape along current edge, lies in range of 0 to routeLength.
   private currentPosition: number
-  private routeLength: number
+  public routeLength: number
 
   // Train route is a composition of edges between stations, represented by Konva's Path shapes.
   route: Path[]
@@ -58,8 +58,16 @@ export class Train {
     return this.velocity * this.speedModifier
   }
 
+  public get prevPath(): Path {
+    return this.route[this.currentRouteIndex - 1]
+  }
+
   public get currentPath(): Path {
     return this.route[this.currentRouteIndex]
+  }
+
+  public get lastPath(): Path {
+    return this.route[this.routeLength - 1]
   }
 
   public get isEndOfRoute(): boolean {
@@ -104,12 +112,28 @@ export class Freight extends Train {
     const shape = new Konva.RegularPolygon({
       x: x1,
       y: y1,
-      sides: 3,
+      sides: 4,
       radius: trainRadius,
-      fill: randColor(),
+      // fill: randColor(),
+      fill: 'lightgray',
       stroke: 'black',
       strokeWidth: 1,
     })
+    // const shape = new Konva.Rect({
+    //   x: x1,
+    //   y: y1,
+    //   width: 16,
+    //   height: 30,
+    //   radius: trainRadius,
+    //   fill: randColor(),
+    //   stroke: 'black',
+    //   strokeWidth: 1,
+    //   offset: {
+    //     x: 2,
+    //     y: 7,
+    //   },
+    //   rotationDeg: 90,
+    // })
     const velocity = 0.2
     const trainType = 'freight'
     super(name, trainType, route, endVertex, shape, velocity, speedModifier)

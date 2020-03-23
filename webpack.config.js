@@ -1,6 +1,7 @@
 var webpack = require('webpack')
 var path = require('path')
 var package = require('./package.json')
+var MiniCssExtractPlugin = require('mini-css-extract-plugin')
 var { CleanWebpackPlugin } = require('clean-webpack-plugin')
 
 var isProduction = process.argv.indexOf('-p') >= 0 || process.env.NODE_ENV === 'production'
@@ -38,14 +39,24 @@ module.exports = {
           'ts-loader',
         ].filter(Boolean),
       },
+      {
+        test: /\.css$/,
+        exclude: /\.module.(s(a|c)ss)$/,
+        loader: [!isProduction ? 'style-loader' : MiniCssExtractPlugin.loader, 'css-loader'],
+      },
     ],
   },
+
   plugins: [
     new webpack.EnvironmentPlugin({
       NODE_ENV: 'development',
       DEBUG: false,
     }),
     new CleanWebpackPlugin(),
+    new MiniCssExtractPlugin({
+      filename: '[hash].css',
+      disable: !isProduction,
+    }),
     new HtmlWebpackPlugin({
       template: 'index.html',
       minify: {

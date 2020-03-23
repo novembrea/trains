@@ -1,169 +1,83 @@
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700&display=swap" />
-    <title>🏭🚂🛤️ trains!</title>
-    <style>
-      html,
-      body {
-        font-family: 'Roboto';
-        margin: 0;
-        padding: 10;
-        font-family: 'Roboto';
-        position: relative;
-        background-color: #222;
-        color: white;
-      }
-      header {
-        padding: 20px 0 20px 0;
-        justify-content: center;
-        align-items: center;
-        display: flex;
-      }
-      button {
-        cursor: pointer;
-      }
-      .konvajs-content {
-        background-color: white;
-        border: 2px solid black;
-      }
-      .box {
-        padding: 10px 20px;
-        display: flex;
-        align-items: center;
-      }
-      .h-button {
-        font-family: inherit;
-        font-weight: 500;
-        line-height: 1.5rem;
-        font-size: 16px;
-        background: deeppink;
-        color: white;
-        padding: 0.5rem 1rem;
-        border: none;
-        box-sizing: border-box;
 
-      }
-      .toggle-button {
-        border: 2px solid white;
-        background: transparent;
-        color: white;
-        padding: 0;
-        margin: 0 5px 0 0;
-        line-height: 0;
-        height: 15px;
-        width: 15px;
-        cursor: pointer;
-      }
-      .slider {
-        -webkit-appearance: none;
-        width: 100%;
-        height: 10px;
-        background: white;
-        outline: none;
-        opacity: 0.3;
-        -webkit-transition: 0.2s;
-        transition: opacity 0.2s;
-      }
-      .slider:hover {
-        opacity: 0.8;
-      }
-      .slider::-webkit-slider-thumb {
-        -webkit-appearance: none;
-        appearance: none;
-        width: 25px;
-        height: 25px;
-        background: deeppink;
-        cursor: pointer;
-      }
-      .slider::-moz-range-thumb {
-        width: 25px;
-        height: 25px;
-        background: deeppink;
-        cursor: pointer;
-      }
-      ::-webkit-scrollbar-track {
-        background-color: #333333;
-      }
-      ::-webkit-scrollbar-thumb {
-        background-color: deeppink;
-      }
-      ::-webkit-scrollbar {
-        width: 6px;
-        background-color: #333333;
-      } 
-    </style>
-  </head>
-  <body style="padding-top: 20px; text-align: center;">
-    <main style="text-align: left; display: flex; justify-content: space-between; align-items: flex-start;">
-      <section>
-        <h2>Schedule</h2>
-        <h4 style="margin: 0;">Stations passed: &nbsp; <span id="stations-passed">0</span></h4>
-        <h4 style="margin: 5 0 20 0;">Routes completed:&nbsp; <span id="routes-completed">0</span></h4>
-        <ul id="schedule" style="list-style: none; padding: 0 25px 0 0 ; margin: 0; max-height: 800px; overflow-y: scroll;"></ul>
-      </section>
-      <section>
-        <header id="ui" style="display: flex; justify-content: flex-end;">
-          <div class="box">
-            <button class="h-button" id="play">
-              PLAY
-            </button>
-          </div>
-          <div class="box">
-            <button class="h-button" id="refresh">
-              REFRESH
-            </button>
-          </div>
-          <div class="box" style="min-width: 100; flex-direction: column; align-items: flex-start; text-align: left;">
-            <label for="speed-modifier" style="padding-bottom: 5px;">Speed modifier</label>
-            <select style="min-width: 100%"" id="speed-modifier">
-              <option value="1">1x</option>
-              <option value="2">2x</option>
-              <option value="3">3x</option>
-              <option value="5">5x</option>
-              <option value="10">10x</option>
-            </select>
-          </div>
-          <div class="box" style="min-width: 100; flex-direction: column; align-items: flex-start; text-align: left;">
-            <label for="connection-density" style="padding-bottom: 5px;">Connection density</label>
-            <select style="min-width: 100%"" id="connection-density">
-              <option value="2">2-2 edges per station</option>
-              <option value="3">2-3 edges per station</option>
-              <option value="4">2-4 edges per station</option>
-              <option value="6">2-6 edges per station</option>
-              <option value="8">2-8 edges per station</option>
-            </select>
-          </div>
-          <div class="box" style="min-width: 250;">
-            <p style="margin-right: 10px;">trains:</p>
-            <input id="trains-slider" class="slider" type="range" min="1" max="1" value="1" />
-            <h3 id="trains-slider-counter" style="padding-left: 10;">2</h3>
-          </div>
-          </div>
-          <div class="box" style="min-width: 250;">
-            <p style="margin-right: 10px;">stations:</p>
-            <input id="stations-slider" class="slider" type="range" min="2" max="2" value="2" />
-            <h3 id="stations-slider-counter" style="padding-left: 10;">2</h3>
-          </div>
-          <div class="box">
-            <label for="snap-checkbox">
-              Snap to grid
-              <input id="snap-checkbox" class="checkbox" type="checkbox" />
-            </label>
-          </div>
-        </header>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" href="https://necolas.github.io/normalize.css/latest/normalize.css">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700&display=swap" />
+  <title>🏭🚂🛤️ trains!</title>
+</head>
 
-        <div
-          id="main"
-          style="padding-top: 10px; display: flex; flex-direction: column; align-items: flex-end; justify-content: center; align-content: center; min-height: 80%;"
-        ></div>
-      </section>
-    </main>
-    <footer>
-      <p>
-        <a href='https://github.com/nvma/trains' style="color: white; font-weight: bold;">Source on GitHub</a>
-      </p>
-    </footer>
-  </body>
+<body>
+  <header class="controls" id="ui">
+    <div class="controls-box">
+      <div class="schedule-counters">
+        <p>🏭 Stations passed: &nbsp; <span id="stations-passed">0</span></p>
+        <p>🚂 Routes completed:&nbsp; <span id="routes-completed">0</span></p>
+      </div>
+    </div>
+
+    <div class="controls-box">
+      <label for="speed-modifier">Speed modifier</label>
+      <select id="speed-modifier">
+        <option value="1">1x</option>
+        <option value="2">2x</option>
+        <option value="3">3x</option>
+        <option value="5">5x</option>
+        <option value="10">10x</option>
+      </select>
+    </div>
+    <div class="controls-box">
+      <label for="connection-density">Connection density</label>
+      <select id="connection-density">
+        <option value="2">2-2 edges per station</option>
+        <option value="3">2-3 edges per station</option>
+        <option value="4">2-4 edges per station</option>
+        <option value="6">2-6 edges per station</option>
+        <option value="8">2-8 edges per station</option>
+      </select>
+    </div>
+    <div class="controls-box">
+      <p>trains:&nbsp;<span id="trains-slider-counter">2</span></p>
+      <input id="trains-slider" class="slider" type="range" min="1" max="1" value="1" />
+    </div>
+    <div class="controls-box">
+      <p>stations:&nbsp;<span id="stations-slider-counter">2</span></p>
+      <input id="stations-slider" class="slider" type="range" min="2" max="2" value="2" />
+    </div>
+    <div class="controls-box">
+      <label for="snap-checkbox">
+        Snap to grid
+        <input id="snap-checkbox" class="checkbox" type="checkbox" />
+      </label>
+    </div>
+    <div class="controls-box">
+      <button class="h-button" id="play">
+        PLAY
+      </button>
+    </div>
+    <div class="controls-box">
+      <button class="h-button" id="refresh">
+        REFRESH
+      </button>
+    </div>
+  </header>
+  <main>
+    <div class="schedule">
+      <ul id="schedule-list" class="schedule-list">
+        <li>
+          <p>📅 trains schedule</p>
+        </li>
+      </ul>
+    </div>
+    <div id="main" class="canvas">
+    </div>
+  </main>
+  <footer>
+    <p>
+      <a href="https://github.com/nvma/trains">Source on GitHub</a>
+    </p>
+  </footer>
+</body>
+
 </html>

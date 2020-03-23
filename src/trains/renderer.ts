@@ -28,7 +28,6 @@ import {
   makeVertex,
   pointDistance,
   randBetween,
-  randColor,
 } from './utils'
 
 let config: Config
@@ -76,7 +75,8 @@ function placeVertex({ name, radius = stationRadius }: { name: string; radius?: 
       x,
       y,
       radius: radius / 2,
-      fill: randColor(),
+      // fill: randColor(),
+      fill: 'gray',
       stroke: 'black',
       strokeWidth: 1,
     })
