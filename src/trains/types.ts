@@ -5,7 +5,7 @@ import { RegularPolygon } from 'konva/types/shapes/RegularPolygon'
 
 export type VertexType = 'station' | 'semaphore'
 export type TrainShape = RegularPolygon | Circle | Rect
-export type Stations = { [key: string]: { name: string; edges: Path[]; station: Circle } }
+export type Stations = { [key: string]: { name: string; edges: Path[]; station: Circle; isInfected?: boolean } }
 export type Distance = { [key: string]: { station: string; distance: number }[] }
 
 export type Semaphore = {
@@ -28,6 +28,7 @@ export type Config = {
   // Vertices will be snapped using modulo of vertexExclusionRadius applied to x and y coordinates.
   // True will produce a more grid-like layout.
   shouldSnapToGrid: boolean
+  isPandemic: boolean
 
   globalSpeedModifier: number
   stationsCount: number

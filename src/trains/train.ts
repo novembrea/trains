@@ -9,6 +9,7 @@ export class Train {
   readonly shape: TrainShape
   private readonly velocity: number
   speedModifier: number
+  isInfected: boolean
 
   // Position of the shape along current edge, lies in range of 0 to routeLength.
   private currentPosition: number
@@ -37,6 +38,7 @@ export class Train {
     velocity: number,
     speedModifier: number,
   ) {
+    this.isInfected = false
     this.name = name
     this.trainType = trainType
     this.shape = shape
@@ -63,6 +65,10 @@ export class Train {
   }
 
   public get currentPath(): Path {
+    // console.log(this.name)
+    // console.log(this.route)
+    // console.log(this.currentRouteIndex)
+    // console.log('---------------------------------')
     return this.route[this.currentRouteIndex]
   }
 
@@ -80,6 +86,29 @@ export class Train {
     return round(x) === round(x2) && round(y) === round(y2)
   }
 
+  public get prevVisitedStation(): string {
+    return this.currentPath
+      .name()
+      .split('-')
+      .shift()!
+  }
+
+  public get currVisitedStation(): string {
+    return this.currentPath
+      .name()
+      .split('-')
+      .pop()!
+  }
+
+  public infect() {
+    this.isInfected = true
+    this.shape.fill('red')
+  }
+
+  public disinfect() {
+    this.isInfected = false
+  }
+
   public moveForward() {
     const { x, y } = this.currentPath.getPointAtLength(this.actualVelocity * this.currentPosition)
     this.shape.position({ x: x, y: y })
@@ -88,10 +117,6 @@ export class Train {
 
   public updateRoute(route: Path[], endVertex: Vertex) {
     this.init(route, endVertex)
-  }
-
-  public incrementPos() {
-    this.currentPosition++
   }
 
   public nextStation() {
@@ -108,14 +133,21 @@ export class Train {
 }
 
 export class Freight extends Train {
-  constructor(name: string, route: Path[], endVertex: Vertex, speedModifier: number, x1: number, y1: number) {
+  constructor(
+    name: string,
+    color: string,
+    route: Path[],
+    endVertex: Vertex,
+    speedModifier: number,
+    x1: number,
+    y1: number,
+  ) {
     const shape = new Konva.RegularPolygon({
       x: x1,
       y: y1,
       sides: 4,
       radius: trainRadius,
-      // fill: randColor(),
-      fill: 'lightgray',
+      fill: color,
       stroke: 'black',
       strokeWidth: 1,
     })

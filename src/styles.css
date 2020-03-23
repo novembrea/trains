@@ -137,6 +137,18 @@ button {
   box-sizing: border-box;
 }
 
+.pandemic-button {
+  font-family: inherit;
+  font-weight: 500;
+  line-height: 1.5rem;
+  font-size: 16px;
+  background: gray;
+  color: white;
+  padding: 0.5rem 1rem;
+  border: none;
+  box-sizing: border-box;
+}
+
 .toggle-button {
   border: 2px solid white;
   background: transparent;

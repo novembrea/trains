@@ -2,6 +2,7 @@ import Konva from 'konva'
 import { Layer } from 'konva/types/Layer'
 import { Path } from 'konva/types/shapes/Path'
 import { Stage } from 'konva/types/Stage'
+import sample from 'lodash/sample'
 import shuffle from 'lodash/shuffle'
 
 import {
@@ -28,6 +29,7 @@ import {
   makeVertex,
   pointDistance,
   randBetween,
+  randColor,
 } from './utils'
 
 let config: Config
@@ -75,8 +77,7 @@ function placeVertex({ name, radius = stationRadius }: { name: string; radius?: 
       x,
       y,
       radius: radius / 2,
-      // fill: randColor(),
-      fill: 'gray',
+      fill: config.isPandemic ? 'gray' : randColor(),
       stroke: 'black',
       strokeWidth: 1,
     })
@@ -141,7 +142,7 @@ function disconnectCollisions(name: string, rr: RailRoadGraph) {
 }
 
 // drawStations places station and its name on the canvas.
-function drawStations(graphLayer: Layer) {
+function drawStations(stationLayer: Layer) {
   Object.keys(stations).forEach(k => {
     const { station, name } = stations[k]
     const text = new Konva.Text({
@@ -159,11 +160,11 @@ function drawStations(graphLayer: Layer) {
       fill: 'white',
       cornerRadius: 25,
     })
-    graphLayer.add(station, textBg, text)
+    stationLayer.add(station, textBg, text)
   })
 }
 
-function drawEdges(rr: RailRoadGraph, graphLayer: Layer) {
+function drawEdges(rr: RailRoadGraph, stationLayer: Layer) {
   rr.adjList.forEach((vertices, station) => {
     vertices.forEach(vertex => {
       const { name, weight } = vertex
@@ -193,7 +194,7 @@ function drawEdges(rr: RailRoadGraph, graphLayer: Layer) {
         verticalAlign: 'middle',
         text,
       })
-      graphLayer.add(edge, circle, marker)
+      stationLayer.add(edge, circle, marker)
     })
   })
 }
@@ -217,7 +218,7 @@ function render(c: Config): void {
     },
   })
 
-  const graphLayer: Layer = new Konva.Layer()
+  const stationLayer: Layer = new Konva.Layer()
   selecetedNames.forEach(name => placeVertex({ name }))
   selecetedNames.forEach(computeDistances)
   selecetedNames.forEach(name => addEdges(name, rr))
@@ -230,9 +231,8 @@ function render(c: Config): void {
   info({ text: `attempts needed to build graph: ${graphBuildAttempts + 1}`, bg: 'lightgreen' })
   graphBuildAttempts = 0
 
-  drawEdges(rr, graphLayer)
-  drawStations(graphLayer)
-  stage.add(graphLayer)
+  drawEdges(rr, stationLayer)
+  drawStations(stationLayer)
 
   const trainLayer = new Konva.Layer()
   const trains: Freight[] = []
@@ -245,6 +245,7 @@ function render(c: Config): void {
 
     const train = new Freight(
       trainName,
+      config.isPandemic ? 'lightgray' : randColor(),
       route,
       end,
       config.globalSpeedModifier,
@@ -255,20 +256,45 @@ function render(c: Config): void {
     insertTrainSchedule(train)
     trains.push(train)
   }
+
+  if (config.isPandemic) {
+    const rt = sample(trains)!
+    rt.infect()
+    stations[rt.prevVisitedStation].isInfected = true
+    stations[rt.prevVisitedStation].station.fill('coral')
+  }
+
+  stage.add(stationLayer)
   stage.add(trainLayer)
 
   let anim = new Konva.Animation((frame: any) => {
     for (let train of trains) {
+      // Train has finished moving between stations.
       if (train.isEndOfPath) {
+        if (config.isPandemic) {
+          const currStation = stations[train.currVisitedStation]
+          if (train.isInfected && !currStation.isInfected) {
+            currStation.station.fill('coral')
+            currStation.isInfected = true
+            stationLayer.draw()
+          }
+          if (currStation.isInfected && !train.isInfected) {
+            train.infect()
+            trainLayer.draw()
+          }
+        }
         updateTrainSchedule(train)
         train.nextStation()
       }
+
+      // Train has finished running current route.
       if (train.isEndOfRoute) {
         const end = rr.randomEnd(train.endVertex)
         const generated = generateRoute(train.endVertex, end, rr, stations)
         train.updateRoute(generated, end)
         insertTrainSchedule(train)
       }
+
       train.moveForward()
     }
   }, trainLayer)

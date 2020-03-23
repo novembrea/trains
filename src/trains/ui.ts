@@ -37,6 +37,7 @@ const uiConnectionDensity = byid('connection-density')!
 const uiStationsPassed = byid('stations-passed')!
 const uiRoutesCompleted = byid('routes-completed')!
 const uiPlayBtn = byid('play')!
+const uiPandemicBtn = byid('pandemic')!
 const uiRefreshBtn = byid('refresh')!
 const uiScheduleBox = byid('schedule-list')!
 const uiSnapCheckbox = byid('snap-checkbox')!
@@ -52,12 +53,14 @@ const initialConfig = () => {
   let trainsCount = trainNames.length
   let connectionDensity = 2
   let shouldSnapToGrid = false
+  let isPandemic = false
   let globalSpeedModifier = 1
 
   if (lsget('station_counter') !== null) stationsCount = +lsget('station_counter')!
   if (lsget('connection_density') !== null) connectionDensity = +lsget('connection_density')!
   if (lsget('trains_counter') !== null) trainsCount = +lsget('trains_counter')!
   if (lsget('should_snap') !== null) shouldSnapToGrid = lsget('should_snap')! === 'true'
+  if (lsget('pandemic') !== null) isPandemic = lsget('pandemic')! === 'true'
   if (lsget('global_speed') !== null) globalSpeedModifier = +lsget('global_speed')!
 
   return {
@@ -66,6 +69,7 @@ const initialConfig = () => {
     connectionDensity,
     globalSpeedModifier,
     shouldSnapToGrid,
+    isPandemic,
   }
 }
 
@@ -122,19 +126,41 @@ export default function initUI() {
     uiRefreshBtn.innerText = 'APPLY CHANGES'
   }
 
+  const resetScheduleAndCounters = () => {
+    uiStationsPassed.innerText = '0'
+    uiRoutesCompleted.innerText = '0'
+    uiScheduleBox.innerHTML = `<li><p>📅 trains schedule</p></li>`
+  }
+
   // Refresn button. Stop animation, remove listeners, reset UI and render again.
   uiRefreshBtn.addEventListener('click', () => {
     animation.stop()
     uiPlayBtn.removeEventListener('click', playHandler)
     uiPlayBtn.innerText = 'PLAY'
     isPlaying = false
-    uiStationsPassed.innerText = '0'
-    uiRoutesCompleted.innerText = '0'
-    uiScheduleBox.innerHTML = ''
 
     uiRefreshBtn.style.background = ''
     uiRefreshBtn.style.border = ''
     uiRefreshBtn.innerText = 'REFRESH'
+
+    resetScheduleAndCounters()
+    render(config)
+  })
+
+  // Pandemic button.
+  const applyPandemicStatus = (isPandemic: boolean) => {
+    uiPandemicBtn.style.background = isPandemic ? 'red' : 'gray'
+    uiPandemicBtn.style.border = ''
+    uiPandemicBtn.innerText = isPandemic ? 'PANDEMIC ON' : 'PANDEMIC OFF'
+  }
+  if (config.isPandemic) applyPandemicStatus(true)
+  uiPandemicBtn.addEventListener('click', () => {
+    let isPandemic = !config.isPandemic
+    localStorage.setItem('pandemic', String(isPandemic))
+    applyPandemicStatus(isPandemic)
+    Object.assign(config, { isPandemic })
+
+    resetScheduleAndCounters()
     render(config)
   })
 
