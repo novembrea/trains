@@ -17,6 +17,10 @@ main {
   flex-direction: column;
 }
 
+.hidden {
+  display: none !important;
+}
+
 .konvajs-content {
   display: none;
 }

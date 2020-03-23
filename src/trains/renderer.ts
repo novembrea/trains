@@ -20,7 +20,7 @@ import {
 import RailRoadGraph from './railroad'
 import { Freight } from './train'
 import { Config, Distance, Stations } from './types'
-import { bindPlayBtn, insertTrainSchedule, updateTrainSchedule } from './ui'
+import { bindPlayBtn, incrementInfectedCounter, insertTrainSchedule, updateTrainSchedule } from './ui'
 import {
   canFitStation,
   doesLineIntersectCircle,
@@ -277,6 +277,7 @@ function render(c: Config): void {
             currStation.station.fill('coral')
             currStation.isInfected = true
             stationLayer.draw()
+            incrementInfectedCounter()
           }
           if (currStation.isInfected && !train.isInfected) {
             train.infect()

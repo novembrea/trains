@@ -32,19 +32,23 @@ const uiTrainInfoTmpl = (t: Train) => {
 }
 
 // DOM elements.
-const uiSpeedModifier = byid('speed-modifier')!
 const uiConnectionDensity = byid('connection-density')!
-const uiStationsPassed = byid('stations-passed')!
-const uiRoutesCompleted = byid('routes-completed')!
-const uiPlayBtn = byid('play')!
+const uiPandemicBox = byid('pandemic-box')!
 const uiPandemicBtn = byid('pandemic')!
+const uiStationsInfected = byid('stations-infected')
+const uiStationsHealthy = byid('stations-healthy')
+
+const uiPlayBtn = byid('play')!
 const uiRefreshBtn = byid('refresh')!
+const uiRoutesCompleted = byid('routes-completed')!
 const uiScheduleBox = byid('schedule-list')!
 const uiSnapCheckbox = byid('snap-checkbox')!
-const uiStationSlider = byid('stations-slider')!
+const uiSpeedModifier = byid('speed-modifier')!
 const uiStationCounter = byid('stations-slider-counter')!
-const uiTrainsSlider = byid('trains-slider')!
+const uiStationSlider = byid('stations-slider')!
+const uiStationsPassed = byid('stations-passed')!
 const uiTrainsCounter = byid('trains-slider-counter')!
+const uiTrainsSlider = byid('trains-slider')!
 
 // Read potential values from local storage and initialize config.
 const lsget = (x: string) => localStorage.getItem(x)
@@ -114,11 +118,28 @@ export function bindPlayBtn(anim: Animation) {
   uiPlayBtn.addEventListener('click', playHandler)
 }
 
+export function incrementInfectedCounter() {
+  uiStationsHealthy.innerText = (+uiStationsHealthy.innerText - 1).toString()
+  uiStationsInfected.innerText = (+uiStationsInfected.innerText + 1).toString()
+  if (+uiStationsHealthy.innerText === 0) {
+    alert('All stations have been infected! 🦠😷🦠😷🦠😷🦠')
+  }
+}
+
 // Initialize UI, bind events, produce config and render app for the first time.
 export default function initUI() {
   let config: Config = {
     ...initialConfig(),
     playBtn: uiPlayBtn,
+  }
+
+  const applyPandemicStatus = (isPandemic: boolean) => {
+    uiPandemicBox.classList.toggle('hidden', !isPandemic)
+    uiStationsInfected.innerText = '1'
+    uiStationsHealthy.innerText = (config.stationsCount - 1).toString()
+    uiPandemicBtn.style.background = isPandemic ? 'red' : 'gray'
+    uiPandemicBtn.style.border = ''
+    uiPandemicBtn.innerText = isPandemic ? 'PANDEMIC ON' : 'PANDEMIC OFF'
   }
 
   const uiNotifyApplyChanges = () => {
@@ -143,23 +164,7 @@ export default function initUI() {
     uiRefreshBtn.style.border = ''
     uiRefreshBtn.innerText = 'REFRESH'
 
-    resetScheduleAndCounters()
-    render(config)
-  })
-
-  // Pandemic button.
-  const applyPandemicStatus = (isPandemic: boolean) => {
-    uiPandemicBtn.style.background = isPandemic ? 'red' : 'gray'
-    uiPandemicBtn.style.border = ''
-    uiPandemicBtn.innerText = isPandemic ? 'PANDEMIC ON' : 'PANDEMIC OFF'
-  }
-  if (config.isPandemic) applyPandemicStatus(true)
-  uiPandemicBtn.addEventListener('click', () => {
-    let isPandemic = !config.isPandemic
-    localStorage.setItem('pandemic', String(isPandemic))
-    applyPandemicStatus(isPandemic)
-    Object.assign(config, { isPandemic })
-
+    if (config.isPandemic) applyPandemicStatus(true)
     resetScheduleAndCounters()
     render(config)
   })
@@ -194,6 +199,17 @@ export default function initUI() {
     Object.assign(config, { stationsCount: value })
 
     uiNotifyApplyChanges()
+  })
+
+  // Pandemic button.
+  if (config.isPandemic) applyPandemicStatus(true)
+  uiPandemicBtn.addEventListener('click', () => {
+    let isPandemic = !config.isPandemic
+    localStorage.setItem('pandemic', String(isPandemic))
+    applyPandemicStatus(isPandemic)
+    Object.assign(config, { isPandemic })
+    resetScheduleAndCounters()
+    render(config)
   })
 
   // Trains slider.
