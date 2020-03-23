@@ -151,15 +151,15 @@ export default function initUI() {
     uiStationsPassed.innerText = '0'
     uiRoutesCompleted.innerText = '0'
     uiScheduleBox.innerHTML = `<li><p>📅 trains schedule</p></li>`
-  }
 
-  // Refresn button. Stop animation, remove listeners, reset UI and render again.
-  uiRefreshBtn.addEventListener('click', () => {
     animation.stop()
     uiPlayBtn.removeEventListener('click', playHandler)
     uiPlayBtn.innerText = 'PLAY'
     isPlaying = false
+  }
 
+  // Refresn button. Stop animation, remove listeners, reset UI and render again.
+  uiRefreshBtn.addEventListener('click', () => {
     uiRefreshBtn.style.background = ''
     uiRefreshBtn.style.border = ''
     uiRefreshBtn.innerText = 'REFRESH'
