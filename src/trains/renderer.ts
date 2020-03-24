@@ -164,7 +164,7 @@ function drawStations(stationLayer: Layer) {
   })
 }
 
-function drawEdges(rr: RailRoadGraph, stationLayer: Layer) {
+function drawEdges(rr: RailRoadGraph, edgeLayer: Layer) {
   rr.adjList.forEach((vertices, station) => {
     vertices.forEach(vertex => {
       const { name, weight } = vertex
@@ -194,7 +194,7 @@ function drawEdges(rr: RailRoadGraph, stationLayer: Layer) {
         verticalAlign: 'middle',
         text,
       })
-      stationLayer.add(edge, circle, marker)
+      edgeLayer.add(edge, circle, marker)
     })
   })
 }
@@ -219,6 +219,7 @@ function render(c: Config): void {
   })
 
   const stationLayer: Layer = new Konva.Layer()
+  const edgeLayer: Layer = new Konva.Layer()
   selecetedNames.forEach(name => placeVertex({ name }))
   selecetedNames.forEach(computeDistances)
   selecetedNames.forEach(name => addEdges(name, rr))
@@ -231,7 +232,7 @@ function render(c: Config): void {
   info({ text: `attempts needed to build graph: ${graphBuildAttempts + 1}`, bg: 'lightgreen' })
   graphBuildAttempts = 0
 
-  drawEdges(rr, stationLayer)
+  drawEdges(rr, edgeLayer)
   drawStations(stationLayer)
 
   const trainLayer = new Konva.Layer()
@@ -264,41 +265,43 @@ function render(c: Config): void {
     stations[rt.prevVisitedStation].station.fill('coral')
   }
 
+  stage.add(edgeLayer)
   stage.add(stationLayer)
   stage.add(trainLayer)
 
-  let anim = new Konva.Animation((frame: any) => {
-    for (let train of trains) {
-      // Train has finished moving between stations.
-      if (train.isEndOfPath) {
-        if (config.isPandemic) {
-          const currStation = stations[train.currVisitedStation]
-          if (train.isInfected && !currStation.isInfected) {
-            currStation.station.fill('coral')
-            currStation.isInfected = true
-            stationLayer.draw()
-            incrementInfectedCounter()
+  let anim = new Konva.Animation(
+    (frame: any) => {
+      for (let train of trains) {
+        // Train has finished moving between stations.
+        if (train.isEndOfPath) {
+          if (config.isPandemic) {
+            const currStation = stations[train.currVisitedStation]
+            if (train.isInfected && !currStation.isInfected) {
+              currStation.station.fill('coral')
+              currStation.isInfected = true
+              incrementInfectedCounter()
+            }
+            if (currStation.isInfected && !train.isInfected) {
+              train.infect()
+            }
           }
-          if (currStation.isInfected && !train.isInfected) {
-            train.infect()
-            trainLayer.draw()
-          }
+          updateTrainSchedule(train)
+          train.nextStation()
         }
-        updateTrainSchedule(train)
-        train.nextStation()
-      }
 
-      // Train has finished running current route.
-      if (train.isEndOfRoute) {
-        const end = rr.randomEnd(train.endVertex)
-        const generated = generateRoute(train.endVertex, end, rr, stations)
-        train.updateRoute(generated, end)
-        insertTrainSchedule(train)
-      }
+        // Train has finished running current route.
+        if (train.isEndOfRoute) {
+          const end = rr.randomEnd(train.endVertex)
+          const generated = generateRoute(train.endVertex, end, rr, stations)
+          train.updateRoute(generated, end)
+          insertTrainSchedule(train)
+        }
 
-      train.moveForward()
-    }
-  }, trainLayer)
+        train.moveForward()
+      }
+    },
+    [trainLayer, stationLayer],
+  )
 
   bindPlayBtn(anim)
 }
