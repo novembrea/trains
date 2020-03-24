@@ -9,6 +9,7 @@ body {
 }
 
 p {
+  font-size: 14px;
   margin: 0 0 10px 0;
 }
 
@@ -19,10 +20,6 @@ main {
 
 .hidden {
   display: none !important;
-}
-
-.konvajs-content {
-  display: none;
 }
 
 .canvas {
@@ -67,10 +64,11 @@ main {
 
 select {
   width: 100%;
+  font-size: 14px;
 }
 
 option {
-  padding: 5px 10px;
+  padding: 2px 4px;
 }
 
 .controls {
@@ -133,10 +131,10 @@ button {
   font-family: inherit;
   font-weight: 500;
   line-height: 1.5rem;
-  font-size: 16px;
+  font-size: 13px;
   background: deeppink;
   color: white;
-  padding: 0.5rem 1rem;
+  padding: 0.2rem 0.5rem;
   border: none;
   box-sizing: border-box;
 }
@@ -145,10 +143,10 @@ button {
   font-family: inherit;
   font-weight: 500;
   line-height: 1.5rem;
-  font-size: 16px;
+  font-size: 13px;
   background: gray;
   color: white;
-  padding: 0.5rem 1rem;
+  padding: 0.2rem 0.5rem;
   border: none;
   box-sizing: border-box;
 }
