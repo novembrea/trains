@@ -43,6 +43,7 @@ const uiRefreshBtn = byid('refresh')!
 const uiRoutesCompleted = byid('routes-completed')!
 const uiScheduleBox = byid('schedule-list')!
 const uiSnapCheckbox = byid('snap-checkbox')!
+const uiHideDistancesCheckbox = byid('hide-distance-checkbox')!
 const uiSpeedModifier = byid('speed-modifier')!
 const uiStationCounter = byid('stations-slider-counter')!
 const uiStationSlider = byid('stations-slider')!
@@ -57,6 +58,7 @@ const initialConfig = () => {
   let trainsCount = trainNames.length
   let connectionDensity = 2
   let shouldSnapToGrid = false
+  let hideDistances = false
   let isPandemic = false
   let globalSpeedModifier = 1
 
@@ -64,6 +66,7 @@ const initialConfig = () => {
   if (lsget('connection_density') !== null) connectionDensity = +lsget('connection_density')!
   if (lsget('trains_counter') !== null) trainsCount = +lsget('trains_counter')!
   if (lsget('should_snap') !== null) shouldSnapToGrid = lsget('should_snap')! === 'true'
+  if (lsget('hide_distances') !== null) hideDistances = lsget('hide_distances')! === 'true'
   if (lsget('pandemic') !== null) isPandemic = lsget('pandemic')! === 'true'
   if (lsget('global_speed') !== null) globalSpeedModifier = +lsget('global_speed')!
 
@@ -73,6 +76,7 @@ const initialConfig = () => {
     connectionDensity,
     globalSpeedModifier,
     shouldSnapToGrid,
+    hideDistances,
     isPandemic,
   }
 }
@@ -230,6 +234,16 @@ export default function initUI() {
     const { checked } = e.target as HTMLInputElement
     localStorage.setItem('should_snap', String(checked))
     Object.assign(config, { shouldSnapToGrid: checked })
+
+    uiNotifyApplyChanges()
+  })
+
+  // Hide distances checkbox.
+  ;(uiHideDistancesCheckbox as HTMLInputElement).checked = config.hideDistances
+  uiHideDistancesCheckbox.addEventListener('change', e => {
+    const { checked } = e.target as HTMLInputElement
+    localStorage.setItem('hide_distances', String(checked))
+    Object.assign(config, { hideDistances: checked })
 
     uiNotifyApplyChanges()
   })

@@ -18,6 +18,15 @@ main {
   flex-direction: column;
 }
 
+label {
+  font-size: 14px;
+  cursor: pointer;
+}
+
+#snap-checkbox {
+  margin-bottom: 10px;
+}
+
 .hidden {
   display: none !important;
 }

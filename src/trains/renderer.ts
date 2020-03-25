@@ -194,7 +194,9 @@ function drawEdges(rr: RailRoadGraph, edgeLayer: Layer) {
         verticalAlign: 'middle',
         text,
       })
-      edgeLayer.add(edge, circle, marker)
+
+      edgeLayer.add(edge)
+      if (!config.hideDistances) edgeLayer.add(circle, marker)
     })
   })
 }

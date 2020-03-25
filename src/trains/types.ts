@@ -28,6 +28,7 @@ export type Config = {
   // Vertices will be snapped using modulo of vertexExclusionRadius applied to x and y coordinates.
   // True will produce a more grid-like layout.
   shouldSnapToGrid: boolean
+  hideDistances: boolean
   isPandemic: boolean
 
   globalSpeedModifier: number
