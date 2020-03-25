@@ -83,7 +83,6 @@ export const generateRoute = (start: Vertex, end: Vertex, g: RailRoadGraph, stat
   } catch (error) {
     throw Error(error)
   }
-
   return [
     stations[start.name].edges.find(edge => edge.name() === `${start.name}-${p[0]}`)!,
     ...p

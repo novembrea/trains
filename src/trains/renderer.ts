@@ -32,6 +32,7 @@ import {
   randColor,
 } from './utils'
 
+let routeCache: { [key: string]: Path[] }
 let config: Config
 let stage: Stage
 let stations: Stations
@@ -203,11 +204,12 @@ function drawEdges(rr: RailRoadGraph, edgeLayer: Layer) {
 
 function render(c: Config): void {
   config = c
-  let selecetedNames = names.slice(0, config.stationsCount)
+  const selecetedNames = names.slice(0, config.stationsCount)
   const rr = new RailRoadGraph(selecetedNames.slice(0, config.stationsCount))
   if (graphBuildAttempts === abortGraphBuildAttempts) {
     throw Error("can't build graph")
   }
+  routeCache = {}
   stations = {}
   distances = {}
   stage = new Konva.Stage({
@@ -241,11 +243,8 @@ function render(c: Config): void {
   const trains: Freight[] = []
   for (const trainName of shuffle(trainNames).slice(0, c.trainsCount)) {
     const [start, end] = rr.randomStartEnd()
-    let route: Path[] | null = []
-    const tryRoute = () => (route = generateRoute(start, end, rr, stations))
-    tryRoute()
-    if (route.length === 0) tryRoute()
-
+    const route = generateRoute(start, end, rr, stations)
+    routeCache[start.name + end.name] = route
     const train = new Freight(
       trainName,
       config.isPandemic ? 'lightgray' : randColor(),
@@ -271,9 +270,9 @@ function render(c: Config): void {
   stage.add(stationLayer)
   stage.add(trainLayer)
 
-  let anim = new Konva.Animation(
+  const anim = new Konva.Animation(
     (frame: any) => {
-      for (let train of trains) {
+      for (const train of trains) {
         // Train has finished moving between stations.
         if (train.isEndOfPath) {
           if (config.isPandemic) {
@@ -294,8 +293,16 @@ function render(c: Config): void {
         // Train has finished running current route.
         if (train.isEndOfRoute) {
           const end = rr.randomEnd(train.endVertex)
-          const generated = generateRoute(train.endVertex, end, rr, stations)
-          train.updateRoute(generated, end)
+          const cacheKey = train.endVertex.name + end.name
+          let nextRoute
+          if (routeCache[cacheKey]) {
+            nextRoute = routeCache[cacheKey]
+            console.log('got route from cache')
+          } else {
+            nextRoute = generateRoute(train.endVertex, end, rr, stations)
+            routeCache[cacheKey] = nextRoute
+          }
+          train.updateRoute(nextRoute, end)
           insertTrainSchedule(train)
         }
 

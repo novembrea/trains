@@ -1,3 +1,5 @@
+import uniq from 'lodash/uniq'
+
 //? All widths, heights and radiuses are based on pixels
 export const canvasWidth = 1600
 export const cavnasHeight = 800
@@ -8,14 +10,16 @@ export const abortPlacementAttempts = 200
 export const abortGraphBuildAttempts = 200
 
 // How big station circle will be drawn on the canvas.
-export const stationRadius = 20
+export const stationRadius = 15
 
 // Defines closest possible placement of station next to the other station.
 export const vertexExclusionRadius = stationRadius * 3
 
 // Placement dimensions: canvas dimension padded by station radius.
-export const xPlacementBound = canvasWidth - stationRadius
-export const yPlacementBound = cavnasHeight - stationRadius
+// Pad right side more because station names go off screen when
+// station is placed close to the far-right.
+export const xPlacementBound = canvasWidth - stationRadius * 2
+export const yPlacementBound = cavnasHeight - stationRadius * 2
 
 // Size of train shape.
 export const trainRadius = 5
@@ -127,7 +131,77 @@ export const names = [
   'Yery',
   'Yuri',
   'Yakov',
+
+  'Amsterdam',
+  'Baltimore',
+  'Casablanca',
+  'Danemark',
+  'Edison',
+  'Florida',
+  'Gallipoli',
+  'Havana',
+  'Italia',
+  'Jerusalem',
+  'Kilogramme',
+  'Liverpool',
+  'Madagascar',
+  'New York',
+  'Oslo',
+  'Paris',
+  'Roma',
+  'Santiago',
+  'Tripoli',
+  'Upsala',
+  'Valencia',
+  'Washington',
+  'Xanthippe',
+  'Yokohama',
+  'Zürich',
+
+  'Argentine',
+  'Brussels',
+  'Canada',
+  'Damascus',
+  'Ecuador',
+  'France',
+  'Greece',
+  'Hanover',
+  'Japan',
+  'Khartoum',
+  'Madrid',
+  'Nancy',
+  'Ostend',
+  'Portugal',
+  'Rivoli',
+  'Sardinia',
+  'Tokio',
+  'Uruguay',
+  'Xaintrie',
+  'Zanzibar',
+
+  'Ana',
+  'Brazil',
+  'Coco',
+  'Dado',
+  'Elsa',
+  'Fiest',
+  'Gato',
+  'Hombre',
+  'Julio',
+  'Luis',
+  'Mama',
+  'Norma',
+  'Peru',
+  'Rosa',
+  'Sara',
+  'Equis',
+  'Yolanda',
+  'Zeta',
 ]
+
+if (names.length !== uniq(names).length) {
+  throw 'Station names must be unique!'
+}
 
 export const trainNames = [
   'deserted',
