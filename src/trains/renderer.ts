@@ -291,8 +291,7 @@ function render(c: Config): void {
           updateTrainSchedule(train)
           train.moveForward()
           train.nextStation()
-          train.stop()
-          setTimeout(() => train.resume(), 300)
+          train.stationStop()
         }
 
         // Train has finished running current route.
@@ -310,7 +309,7 @@ function render(c: Config): void {
           insertTrainSchedule(train)
         }
 
-        if (train.velocity > 0) train.moveForward()
+        if (train.isMoving) train.moveForward()
       }
     },
     [trainLayer, stationLayer],

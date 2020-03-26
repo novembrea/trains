@@ -62,6 +62,10 @@ export class Train {
     return this.velocity * this.speedModifier
   }
 
+  public get isMoving(): boolean {
+    return this.velocity > 0
+  }
+
   public get prevPath(): Path {
     return this.route[this.currentRouteIndex - 1]
   }
@@ -102,7 +106,7 @@ export class Train {
       .pop()!
   }
 
-  public stop() {
+  public halt() {
     this.velocity = 0
   }
 
@@ -140,6 +144,13 @@ export class Train {
       // If this is the end of the current route, restore currentPosition until new route is generated.
       this.currentPosition = prevPos
     }
+  }
+
+  public stationStop() {
+    this.halt()
+    let stopTime = 300
+    if (this.isEndOfRoute) stopTime = 2000
+    setTimeout(() => this.resume(), stopTime)
   }
 }
 
