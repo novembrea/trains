@@ -13,7 +13,7 @@ export const abortGraphBuildAttempts = 200
 export const stationRadius = 15
 
 // Defines closest possible placement of station next to the other station.
-export const vertexExclusionRadius = stationRadius * 3
+export const vertexExclusionRadius = stationRadius * 3.5
 
 // Size of train shape.
 export const trainRadius = 5

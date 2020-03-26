@@ -1,5 +1,6 @@
 import Konva from 'konva'
 import { Layer } from 'konva/types/Layer'
+import { Circle } from 'konva/types/shapes/Circle'
 import { Path } from 'konva/types/shapes/Path'
 import { Stage } from 'konva/types/Stage'
 import sample from 'lodash/sample'
@@ -146,7 +147,7 @@ function disconnectCollisions(name: string, rr: RailRoadGraph) {
 }
 
 // drawStations places station and its name on the canvas.
-function drawStations(stationLayer: Layer) {
+function drawStations(stationLayer: Layer, passangerLayer: Layer) {
   Object.keys(stations).forEach(k => {
     const { shape, name } = stations[k]
     const text = new Konva.Text({
@@ -164,6 +165,22 @@ function drawStations(stationLayer: Layer) {
       fill: 'white',
       cornerRadius: 25,
     })
+
+    const passangers: Circle[] = []
+    for (let i = 0; i < randBetween(2, 5); i++) {
+      const r = stationRadius * Math.sqrt(Math.random())
+      const theta = Math.random() * 2 * Math.PI
+      passangers.push(
+        new Konva.Circle({
+          x: shape.x() + r * Math.cos(theta),
+          y: shape.y() + r * Math.sin(theta),
+          radius: 2,
+          fill: 'lightblue',
+        }),
+      )
+    }
+    stations[name].passangers.push(...passangers)
+    passangerLayer.add(...passangers)
     stationLayer.add(shape, textBg, text)
   })
 }
@@ -227,6 +244,7 @@ function render(c: Config): void {
 
   const stationLayer: Layer = new Konva.Layer()
   const edgeLayer: Layer = new Konva.Layer()
+  const passangerLayer: Layer = new Konva.Layer()
   selecetedNames.forEach(name => placeVertex({ name }))
   selecetedNames.forEach(computeDistances)
   selecetedNames.forEach(name => addEdges(name, rr))
@@ -240,7 +258,7 @@ function render(c: Config): void {
   graphBuildAttempts = 0
 
   drawEdges(rr, edgeLayer)
-  drawStations(stationLayer)
+  drawStations(stationLayer, passangerLayer)
 
   const trainLayer = new Konva.Layer()
   const trains: Freight[] = []
@@ -272,6 +290,7 @@ function render(c: Config): void {
   stage.add(edgeLayer)
   stage.add(stationLayer)
   stage.add(trainLayer)
+  // stage.add(passangerLayer)
 
   const anim = new Konva.Animation(
     (frame: any) => {
@@ -288,8 +307,10 @@ function render(c: Config): void {
               train.infect()
             }
           }
+
           updateTrainSchedule(train)
           train.moveForward()
+          // train.handlePassangers(stations[train.currVisitedStation])
           train.nextStation()
           train.stationStop()
         }
@@ -312,7 +333,7 @@ function render(c: Config): void {
         if (train.isMoving) train.moveForward()
       }
     },
-    [trainLayer, stationLayer],
+    [trainLayer, stationLayer, passangerLayer],
   )
 
   bindPlayBtn(anim)

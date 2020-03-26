@@ -1,3 +1,4 @@
+import { Shape } from 'konva/types/Shape'
 import { Circle } from 'konva/types/shapes/Circle'
 import { Path } from 'konva/types/shapes/Path'
 
@@ -7,6 +8,7 @@ class Station {
   name: string
   edges: Path[]
   shape: Circle
+  passangers: Shape[]
   isInfected?: boolean
 
   constructor(name: string, edges: Path[], shape: Circle, isInfected?: boolean) {
@@ -14,6 +16,7 @@ class Station {
     this.edges = edges
     this.shape = shape
     this.isInfected = this.isInfected
+    this.passangers = []
   }
 
   public infect() {

@@ -1,7 +1,9 @@
 import Konva from 'konva'
+import { Shape } from 'konva/types/Shape'
 import { Path } from 'konva/types/shapes/Path'
 
-import { trainPandmicHealthyColor, trainPandmicInfectedColor, trainRadius } from './constants'
+import { stationRadius, trainPandmicHealthyColor, trainPandmicInfectedColor, trainRadius } from './constants'
+import Station from './station'
 import { TrainShape, Vertex } from './types'
 import { round } from './utils'
 
@@ -11,6 +13,7 @@ export class Train {
   maxSpeed: number
   speedModifier: number
   isInfected: boolean
+  passangers: Shape[]
 
   // Position of the shape along current edge, lies in range of 0 to routeLength.
   private currentPosition: number
@@ -43,6 +46,7 @@ export class Train {
     this.name = name
     this.trainType = trainType
     this.shape = shape
+    this.passangers = []
     this.maxSpeed = maxSpeed
     this.velocity = maxSpeed
     this.speedModifier = speedModifier
@@ -66,20 +70,12 @@ export class Train {
     return this.velocity > 0
   }
 
-  public get prevPath(): Path {
-    return this.route[this.currentRouteIndex - 1]
-  }
-
   public get currentPath(): Path {
     return this.route[this.currentRouteIndex]
   }
 
   public get lastPath(): Path {
     return this.route[this.routeLength - 1]
-  }
-
-  public get isPenultimateRoute(): boolean {
-    return this.currentRouteIndex + 1 === this.routeLength
   }
 
   public get isEndOfRoute(): boolean {
@@ -148,9 +144,36 @@ export class Train {
 
   public stationStop() {
     this.halt()
-    let stopTime = 300
-    if (this.isEndOfRoute) stopTime = 2000
+    let stopTime = 100
+    if (this.isEndOfRoute) stopTime = 300
     setTimeout(() => this.resume(), stopTime)
+  }
+
+  //! Canvas can't handle a large number of naively implemented passangers.
+  public handlePassangers(station: Station) {
+    const waiting = station.passangers.length
+
+    // Unload passangers.
+    this.passangers.forEach(p => {
+      const r = stationRadius * Math.sqrt(Math.random())
+      const theta = Math.random() * 2 * Math.PI
+      p.position({
+        x: station.shape.x() + r * Math.cos(theta),
+        y: station.shape.y() + r * Math.sin(theta),
+      })
+      station.passangers.push(p)
+      setTimeout(() => {
+        p.show()
+      }, 20)
+    })
+    this.passangers = []
+
+    // Load passangers.
+    const outbound = station.passangers.slice(0, waiting)
+    outbound.forEach(p => {
+      p.hide()
+      this.passangers.push(p)
+    })
   }
 }
 
@@ -173,21 +196,7 @@ export class Freight extends Train {
       stroke: 'black',
       strokeWidth: 1,
     })
-    // const shape = new Konva.Rect({
-    //   x: x1,
-    //   y: y1,
-    //   width: 16,
-    //   height: 30,
-    //   radius: trainRadius,
-    //   fill: randColor(),
-    //   stroke: 'black',
-    //   strokeWidth: 1,
-    //   offset: {
-    //     x: 2,
-    //     y: 7,
-    //   },
-    //   rotationDeg: 90,
-    // })
+
     const maxSpeed = 0.2
     const trainType = 'freight'
     super(name, trainType, route, endVertex, shape, maxSpeed, speedModifier)
