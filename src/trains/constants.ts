@@ -15,14 +15,20 @@ export const stationRadius = 15
 // Defines closest possible placement of station next to the other station.
 export const vertexExclusionRadius = stationRadius * 3
 
+// Size of train shape.
+export const trainRadius = 5
+
 // Placement dimensions: canvas dimension padded by station radius.
 // Pad right side more because station names go off screen when
 // station is placed close to the far-right.
 export const xPlacementBound = canvasWidth - stationRadius * 2
 export const yPlacementBound = cavnasHeight - stationRadius * 2
 
-// Size of train shape.
-export const trainRadius = 5
+export const stationPandmicHealthyColor = 'gray'
+export const stationPandmicInfectedColor = 'coral'
+
+export const trainPandmicHealthyColor = 'lightgray'
+export const trainPandmicInfectedColor = 'tomato'
 
 // Station names.
 // Radiotelephony spelling alphabets in different languages/eras.

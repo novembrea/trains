@@ -3,13 +3,13 @@ import { Path } from 'konva/types/shapes/Path'
 import { vertexExclusionRadius } from './constants'
 import dijkstra from './dijkstra'
 import RailRoadGraph from './railroad'
-import { Pair, Stations, Vertex, VertexType } from './types'
+import Station from './station'
+import { Pair, Vertex, VertexType } from './types'
 
 export const printVertex = (v: Vertex): string => `${v.name}[${v.weight}]`
 export const makeVertex = (name: string, weight: number, type: VertexType): Vertex => ({
   name,
   weight,
-  semaphore: { state: 'green' },
   type,
 })
 
@@ -64,11 +64,11 @@ export const doesLineIntersectCircle = (props: intersectionArgs) => {
 }
 
 // Checks whether provided point at given x/y can accomodate station considering constant value of exclusion radius.
-export const canFitStation = (x: number, y: number, stations: Stations): boolean => {
+export const canFitStation = (x: number, y: number, stations: { [key: string]: Station }): boolean => {
   const keys = Object.keys(stations)
   for (let i = 0; i < keys.length; i++) {
-    const { station } = stations[keys[i]]
-    const [sx, sy] = [station.x(), station.y()]
+    const { shape } = stations[keys[i]]
+    const [sx, sy] = [shape.x(), shape.y()]
     const xDiff = Math.abs(x - sx)
     const yDiff = Math.abs(y - sy)
     if (xDiff < vertexExclusionRadius && yDiff < vertexExclusionRadius) return false
@@ -76,7 +76,12 @@ export const canFitStation = (x: number, y: number, stations: Stations): boolean
   return true
 }
 
-export const generateRoute = (start: Vertex, end: Vertex, g: RailRoadGraph, stations: Stations): Path[] => {
+export const generateRoute = (
+  start: Vertex,
+  end: Vertex,
+  g: RailRoadGraph,
+  stations: { [key: string]: Station },
+): Path[] => {
   let p: string[]
   try {
     p = dijkstra(start, end, g)

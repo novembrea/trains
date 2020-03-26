@@ -1,13 +1,14 @@
 import Konva from 'konva'
 import { Path } from 'konva/types/shapes/Path'
 
-import { trainRadius } from './constants'
+import { trainPandmicHealthyColor, trainPandmicInfectedColor, trainRadius } from './constants'
 import { TrainShape, Vertex } from './types'
 import { round } from './utils'
 
 export class Train {
   readonly shape: TrainShape
-  private readonly velocity: number
+  velocity: number
+  maxSpeed: number
   speedModifier: number
   isInfected: boolean
 
@@ -35,14 +36,15 @@ export class Train {
     route: Path[],
     endVertex: Vertex,
     shape: TrainShape,
-    velocity: number,
+    maxSpeed: number,
     speedModifier: number,
   ) {
     this.isInfected = false
     this.name = name
     this.trainType = trainType
     this.shape = shape
-    this.velocity = velocity
+    this.maxSpeed = maxSpeed
+    this.velocity = maxSpeed
     this.speedModifier = speedModifier
     this.init(route, endVertex)
   }
@@ -65,15 +67,15 @@ export class Train {
   }
 
   public get currentPath(): Path {
-    // console.log(this.name)
-    // console.log(this.route)
-    // console.log(this.currentRouteIndex)
-    // console.log('---------------------------------')
     return this.route[this.currentRouteIndex]
   }
 
   public get lastPath(): Path {
     return this.route[this.routeLength - 1]
+  }
+
+  public get isPenultimateRoute(): boolean {
+    return this.currentRouteIndex + 1 === this.routeLength
   }
 
   public get isEndOfRoute(): boolean {
@@ -100,13 +102,22 @@ export class Train {
       .pop()!
   }
 
+  public stop() {
+    this.velocity = 0
+  }
+
+  public resume() {
+    this.velocity = this.maxSpeed
+  }
+
   public infect() {
     this.isInfected = true
-    this.shape.fill('red')
+    this.shape.fill(trainPandmicInfectedColor)
   }
 
   public disinfect() {
     this.isInfected = false
+    this.shape.fill(trainPandmicHealthyColor)
   }
 
   public moveForward() {
@@ -166,8 +177,8 @@ export class Freight extends Train {
     //   },
     //   rotationDeg: 90,
     // })
-    const velocity = 0.2
+    const maxSpeed = 0.2
     const trainType = 'freight'
-    super(name, trainType, route, endVertex, shape, velocity, speedModifier)
+    super(name, trainType, route, endVertex, shape, maxSpeed, speedModifier)
   }
 }

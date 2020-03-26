@@ -11,15 +11,19 @@ import {
   canvasWidth,
   cavnasHeight,
   names,
+  stationPandmicHealthyColor,
+  stationPandmicInfectedColor,
   stationRadius,
   trainNames,
+  trainPandmicHealthyColor,
   vertexExclusionRadius,
   xPlacementBound,
   yPlacementBound,
 } from './constants'
 import RailRoadGraph from './railroad'
+import Station from './station'
 import { Freight } from './train'
-import { Config, Distance, Stations } from './types'
+import { Config, Distance } from './types'
 import { bindPlayBtn, incrementInfectedCounter, insertTrainSchedule, updateTrainSchedule } from './ui'
 import {
   canFitStation,
@@ -35,7 +39,7 @@ import {
 let routeCache: { [key: string]: Path[] }
 let config: Config
 let stage: Stage
-let stations: Stations
+let stations: { [key: string]: Station }
 let distances: Distance
 let graphBuildAttempts = 0
 
@@ -74,17 +78,16 @@ function placeVertex({ name, radius = stationRadius }: { name: string; radius?: 
       continue
     }
 
-    const station = new Konva.Circle({
+    const shape = new Konva.Circle({
       x,
       y,
       radius: radius / 2,
-      fill: config.isPandemic ? 'gray' : randColor(),
+      fill: config.isPandemic ? stationPandmicHealthyColor : randColor(),
       stroke: 'black',
       strokeWidth: 1,
     })
 
-    stations[name] = { name, station, edges: [] }
-
+    stations[name] = new Station(name, [], shape, false)
     placed = true
   }
 }
@@ -96,10 +99,10 @@ function placeVertex({ name, radius = stationRadius }: { name: string; radius?: 
 function computeDistances(name: string) {
   distances[name] = []
   const keys = Object.keys(stations).filter(k => k !== name)
-  const target = stations[name].station
+  const target = stations[name].shape
   for (let j = 0; j < keys.length; j++) {
     const key = keys[j]
-    const value = stations[key].station
+    const value = stations[key].shape
     const distance = pointDistance(target.x(), value.x(), target.y(), value.y())
     distances[name].push({ station: key, distance })
   }
@@ -127,13 +130,13 @@ function addEdges(name: string, rr: RailRoadGraph) {
   it's set to be the double of station initial radius, but it's tunable.
 */
 function disconnectCollisions(name: string, rr: RailRoadGraph) {
-  const origin = stations[name].station
+  const origin = stations[name].shape
   const [x1, y1] = [origin.x(), origin.y()]
   rr.adjList.get(name)!.forEach(vertex => {
-    const [x2, y2] = [stations[vertex.name].station.x(), stations[vertex.name].station.y()]
+    const [x2, y2] = [stations[vertex.name].shape.x(), stations[vertex.name].shape.y()]
     const hay = rr.adjList.get(name)!.filter(v => v.name !== vertex.name)
     hay.forEach(v => {
-      const [cx, cy] = [stations[v.name].station.x(), stations[v.name].station.y()]
+      const [cx, cy] = [stations[v.name].shape.x(), stations[v.name].shape.y()]
       if (doesLineIntersectCircle({ x1, y1, x2, y2, cx, cy, radius: stationRadius * 2 })) {
         info({ text: `[${name}] intersects with [${v.name}] on the way to [${vertex.name}]`, bg: 'lightgray' })
         rr.disconnectEdges(name, vertex.name)
@@ -145,23 +148,23 @@ function disconnectCollisions(name: string, rr: RailRoadGraph) {
 // drawStations places station and its name on the canvas.
 function drawStations(stationLayer: Layer) {
   Object.keys(stations).forEach(k => {
-    const { station, name } = stations[k]
+    const { shape, name } = stations[k]
     const text = new Konva.Text({
-      x: station.x() - station.radius() + 15,
-      y: station.y() - station.radius() * 2,
+      x: shape.x() - shape.radius() + 15,
+      y: shape.y() - shape.radius() * 2,
       text: name,
       fontSize: 10,
       fontFamily: 'Roboto',
     })
     const textBg = new Konva.Rect({
-      x: station.x() - 5 - station.radius() + 15,
-      y: station.y() - station.radius() * 2 - 3,
+      x: shape.x() - 5 - shape.radius() + 15,
+      y: shape.y() - shape.radius() * 2 - 3,
       width: text.width() + 10,
       height: 14,
       fill: 'white',
       cornerRadius: 25,
     })
-    stationLayer.add(station, textBg, text)
+    stationLayer.add(shape, textBg, text)
   })
 }
 
@@ -169,8 +172,8 @@ function drawEdges(rr: RailRoadGraph, edgeLayer: Layer) {
   rr.adjList.forEach((vertices, station) => {
     vertices.forEach(vertex => {
       const { name, weight } = vertex
-      const [x1, y1] = [stations[station].station.x(), stations[station].station.y()]
-      const [x2, y2] = [stations[name].station.x(), stations[name].station.y()]
+      const [x1, y1] = [stations[station].shape.x(), stations[station].shape.y()]
+      const [x2, y2] = [stations[name].shape.x(), stations[name].shape.y()]
 
       const edge = new Konva.Path({
         data: `M'${x1} ${y1} L ${x2} ${y2}`,
@@ -247,12 +250,12 @@ function render(c: Config): void {
     routeCache[start.name + end.name] = route
     const train = new Freight(
       trainName,
-      config.isPandemic ? 'lightgray' : randColor(),
+      config.isPandemic ? trainPandmicHealthyColor : randColor(),
       route,
       end,
       config.globalSpeedModifier,
-      stations[start.name].station.x(),
-      stations[start.name].station.y(),
+      stations[start.name].shape.x(),
+      stations[start.name].shape.y(),
     )
     trainLayer.add(train.shape)
     insertTrainSchedule(train)
@@ -263,7 +266,7 @@ function render(c: Config): void {
     const rt = sample(trains)!
     rt.infect()
     stations[rt.prevVisitedStation].isInfected = true
-    stations[rt.prevVisitedStation].station.fill('coral')
+    stations[rt.prevVisitedStation].shape.fill(stationPandmicInfectedColor)
   }
 
   stage.add(edgeLayer)
@@ -278,8 +281,7 @@ function render(c: Config): void {
           if (config.isPandemic) {
             const currStation = stations[train.currVisitedStation]
             if (train.isInfected && !currStation.isInfected) {
-              currStation.station.fill('coral')
-              currStation.isInfected = true
+              currStation.infect()
               incrementInfectedCounter()
             }
             if (currStation.isInfected && !train.isInfected) {
@@ -287,7 +289,10 @@ function render(c: Config): void {
             }
           }
           updateTrainSchedule(train)
+          train.moveForward()
           train.nextStation()
+          train.stop()
+          setTimeout(() => train.resume(), 300)
         }
 
         // Train has finished running current route.
@@ -297,7 +302,6 @@ function render(c: Config): void {
           let nextRoute
           if (routeCache[cacheKey]) {
             nextRoute = routeCache[cacheKey]
-            console.log('got route from cache')
           } else {
             nextRoute = generateRoute(train.endVertex, end, rr, stations)
             routeCache[cacheKey] = nextRoute
@@ -306,7 +310,7 @@ function render(c: Config): void {
           insertTrainSchedule(train)
         }
 
-        train.moveForward()
+        if (train.velocity > 0) train.moveForward()
       }
     },
     [trainLayer, stationLayer],

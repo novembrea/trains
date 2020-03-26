@@ -8,14 +8,9 @@ export type TrainShape = RegularPolygon | Circle | Rect
 export type Stations = { [key: string]: { name: string; edges: Path[]; station: Circle; isInfected?: boolean } }
 export type Distance = { [key: string]: { station: string; distance: number }[] }
 
-export type Semaphore = {
-  state: 'red' | 'green'
-}
-
 export type Vertex = {
   name: string
   weight: number
-  semaphore: Semaphore
   type: VertexType
 }
 
