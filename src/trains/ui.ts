@@ -59,7 +59,7 @@ const initialConfig = () => {
   let connectionDensity = 2
   let shouldSnapToGrid = false
   let hideDistances = false
-  let isPandemic = false
+  let isPandemic = true
   let globalSpeedModifier = 1
 
   if (lsget('station_counter') !== null) stationsCount = +lsget('station_counter')!

@@ -144,7 +144,7 @@ export class Train {
 
   public stationStop() {
     this.halt()
-    let stopTime = 100
+    let stopTime = 0
     if (this.isEndOfRoute) stopTime = 300
     setTimeout(() => this.resume(), stopTime)
   }
