@@ -61,7 +61,7 @@ function placeVertex({ name, radius = stationRadius }: { name: string; radius?: 
         Placement area width: ${xPlacementBound}px
         Placement area height: ${yPlacementBound}px
         ------------------------------------------
-        Verify that there are enough space to fit all vertices
+        Verify that there is enough space to fit all vertices
         `,
       )
     }
@@ -224,8 +224,8 @@ function drawEdges(rr: RailRoadGraph, edgeLayer: Layer) {
 
 function render(c: Config): void {
   config = c
-  const selecetedNames = names.slice(0, config.stationsCount)
-  const rr = new RailRoadGraph(selecetedNames.slice(0, config.stationsCount))
+  const stationNames = names.slice(0, config.stationsCount)
+  const rr = new RailRoadGraph(stationNames.slice(0, config.stationsCount))
   if (graphBuildAttempts === abortGraphBuildAttempts) {
     throw Error("can't build graph")
   }
@@ -245,10 +245,10 @@ function render(c: Config): void {
   const stationLayer: Layer = new Konva.Layer()
   const edgeLayer: Layer = new Konva.Layer()
   const passangerLayer: Layer = new Konva.Layer()
-  selecetedNames.forEach(name => placeVertex({ name }))
-  selecetedNames.forEach(computeDistances)
-  selecetedNames.forEach(name => addEdges(name, rr))
-  selecetedNames.forEach(name => disconnectCollisions(name, rr))
+  stationNames.forEach(name => placeVertex({ name }))
+  stationNames.forEach(computeDistances)
+  stationNames.forEach(name => addEdges(name, rr))
+  stationNames.forEach(name => disconnectCollisions(name, rr))
   if (!rr.isDisconnected()) {
     graphBuildAttempts++
     console.clear()
